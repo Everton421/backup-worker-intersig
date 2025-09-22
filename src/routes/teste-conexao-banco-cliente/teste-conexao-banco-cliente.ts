@@ -36,7 +36,7 @@ import mysql2 from 'mysql2/promise'
             password: String(senha),
             port: Number(porta),
             user:usuario,
-            connectTimeout: 10000,  
+            connectTimeout: 40000,  
             connectionLimit: 5,
         })  
 

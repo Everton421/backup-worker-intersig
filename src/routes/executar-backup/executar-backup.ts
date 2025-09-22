@@ -35,8 +35,8 @@ export const executarBackup: FastifyPluginAsyncZod = async ( server ) =>{
                         usuario: dataClient.usuarioMysql
                     }
 
-
-                  await execBackup( config, arrDatabases)
+                    
+                //  await execBackup( config, arrDatabases)
                      
                          
                 }
