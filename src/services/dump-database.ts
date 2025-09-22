@@ -16,12 +16,12 @@ type resultDumpDatabase = {
 }
 
 
- export function dumpDatabase( mysqlConfig:mysqlConfig, dbName:string ) :Promise<resultDumpDatabase>{
+ export function dumpDatabase( mysqlConfig:mysqlConfig, dbName:string , id:string ) :Promise<resultDumpDatabase>{
 
         const __filename = fileURLToPath("file:///C:/Users/usuario/Desktop/apps/api-backup/src/services/dump-database.ts");
         const __dirname = path.dirname(__filename);
     
-            const pathTemp = path.resolve(__dirname,`../../temp/${dbName}.sql`)  
+            const pathTemp = path.resolve(__dirname,`../../temp/${dbName}-${id}.sql`)  
         
     const pathMysqlDump = path.resolve(__dirname,'../../mysqldump.exe') // Use path.resolve para caminho absoluto
 
@@ -40,11 +40,7 @@ type resultDumpDatabase = {
 
             mysqldump.stdout.pipe(fileStream);  // Redireciona a saída para o arquivo
 
-           // mysqldump.stderr.on('data', (data) => {
-           // console.error(`mysqldump stderr: ${data}`); // Captura erros
-           //     reject({ok:false, msg:`mysqldump stderr:${data}`});
-           //   });
-
+       
             mysqldump.on('close', (code) => {
             if (code === 0) {
                 console.log(`Backup de ${dbName} concluído com sucesso.`);

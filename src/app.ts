@@ -7,6 +7,7 @@ import  scalarApiReference from '@scalar/fastify-api-reference';
 import { getClientesPorCodigo } from "./routes/get-client-codigo/get-clientes-codigo.ts";
 import { testeConexaoBanco } from "./routes/teste-conexao-banco-cliente/teste-conexao-banco-cliente.ts";
 import { executarBackup } from "./routes/executar-backup/executar-backup.ts";
+import { getDatabases } from "./routes/get-databases/get-databases.ts";
 
 const server = fastify(
     {
@@ -41,5 +42,7 @@ server.register(getClientesPorCodigo)
 server.register(testeConexaoBanco)
 
 server.register(executarBackup);
+server.register(getDatabases);
+
 
 export {server }

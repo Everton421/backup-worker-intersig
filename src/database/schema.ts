@@ -1,9 +1,13 @@
-import { mysqlTable, mysqlSchema,   int, varchar, index, char, unique, date, mysqlEnum,  } from "drizzle-orm/mysql-core"
+import { mysqlTable, mysqlSchema,   int, varchar, MySqlEnumColumn, char, unique, date, mysqlEnum,text  } from "drizzle-orm/mysql-core"
 import { sql } from "drizzle-orm"
 import { datetime } from "drizzle-orm/mysql-core";
+import { time } from "drizzle-orm/mysql-core";
 
  
 export const acessoCliente = char("acesso", [ "L","B","A"])
+export const statusBackup = char("STATUS_BACKUP", ["finalizado","em-andamento","erro","pendente"])
+
+export const efetuarBackup = char("EFETUAR_BACKUP", ["S","N"]);
 
 export const clientes = mysqlTable("clientes", {
     codigo: int("CODIGO").autoincrement().notNull(),
@@ -81,8 +85,12 @@ export const clientes = mysqlTable("clientes", {
     longitude: varchar("LONGITUDE", { length: 255 }).default('NULL'),
     tipoVersao: varchar("TIPO_VERSAO", { length: 255 }).default('NULL'),
     atualizar: mysqlEnum("ATUALIZAR", ['S','N']).default('N'),
-    data_backup: datetime("DATA_BACKUP" , { mode: 'string' } ).default('NULL') 
-},
+    data_ultimo_backup: datetime("DATA_ULTIMO_BACKUP" , { mode: 'string' } ).default('NULL'),
+    hora_agenda_backup: time("HORA_AGENDA_BACKUP"   ).default('00:00:00'),
+    bancos_backup: text("BANCOS_BACKUP"  ).default('NULL'),
+    status_backup: statusBackup.default('pendente'),
+    efetuar_backup: efetuarBackup.default('N') 
+    },
 (table) => [
     unique("CNPJ").on(table.cnpj),
 ]);

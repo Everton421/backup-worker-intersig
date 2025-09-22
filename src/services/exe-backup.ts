@@ -6,7 +6,10 @@ import { dumpDatabase } from './dump-database.ts';
 import { zipBackup } from './zip.ts';
 import { limparArquivosSql } from './delete-arquivos.ts';
 import { dateHook } from '../hooks/data-hook.ts';
-
+import { randomUUID } from 'node:crypto';
+import { db } from '../database/client.ts';
+import { clientes } from '../database/schema.ts';
+import { eq, sql } from 'drizzle-orm';
 
     export type mysqlConfig = {
         host:string,
@@ -18,7 +21,10 @@ import { dateHook } from '../hooks/data-hook.ts';
 
  
 
-export async function  execBackup (config:mysqlConfig, databases:string[] ){
+export async function  execBackup (codigoCliente:number, config:mysqlConfig, databases:string[], databaseName:string){
+
+        const id = randomUUID();
+     
 
         const dateService = dateHook();
         const {  data, hora} = dateService.getDataHora()
@@ -26,13 +32,13 @@ export async function  execBackup (config:mysqlConfig, databases:string[] ){
  const __filename = fileURLToPath("file:///C:/Users/usuario/Desktop/apps/api-backup/src/services/exec-backup.ts");
  const __dirname = path.dirname(__filename);
  
-  const zipPath = path.resolve(__dirname,'../../backups', `Bkp_${data}_${hora}.zip`)
+  const zipPath = path.resolve(__dirname,'../../backups', `Bkp-${databaseName}_${data}_${hora}.zip`)
 
     try{
          if( databases.length > 0 ){
              for( const  database  of databases ){
                 
-                await dumpDatabase(config, database ).then(result => {
+                await dumpDatabase(config, database, id ).then(result => {
                             console.log(result);
                         }).catch(err => {
                             console.error(err);
@@ -50,8 +56,21 @@ export async function  execBackup (config:mysqlConfig, databases:string[] ){
     .then(() =>  {    return { erro:false, msg: `Backup realizado com sucesso!` }})
     .catch(err => {    return { erro:true, msg:`erro ao tentar  executar o zip dos arquivos ${err}`   }} );
 
-        limparArquivosSql()
+             for( const  database  of databases ){
+                 limparArquivosSql(database, id)
+            }
+                
+       
 
+             await db.update(clientes)
+             .set(
+                { 
+                  data_ultimo_backup: sql`NOW()`,
+                  arquivoMaisRecente: `Bkp-${databaseName}_${data}_${hora}.zip`, 
+                    status_backup: 'finalizado',  
+                    bancos_backup: String(databases)  
+                })
+                .where(eq(clientes.codigo, codigoCliente ))
     }catch(e){
         return { erro:true, msg: ` erro ao tentar executar o backup ${e} `  }
     }
