@@ -24,7 +24,6 @@ import { eq, sql } from 'drizzle-orm';
 export async function  execBackup (codigoCliente:number, config:mysqlConfig, databases:string[], databaseName:string){
 
         const id = randomUUID();
-     
 
         const dateService = dateHook();
         const {  data, hora} = dateService.getDataHora()
@@ -48,18 +47,32 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
                 }
                 
          }else{
+                    await db.update(clientes)
+             .set(
+                { 
+                    status_backup: 'erro',  
+                    msg_backup:"nenhum banco de dados disponivel para backup, verifique o nome do banco de dados do cliente"
+                    })
+                .where(eq(clientes.codigo, codigoCliente ))
                  return { erro:true, msg:'nenhum banco de dados disponivel para backup!'    }
  
          }
 
        zipBackup(zipPath)
     .then(() =>  {    return { erro:false, msg: `Backup realizado com sucesso!` }})
-    .catch(err => {    return { erro:true, msg:`erro ao tentar  executar o zip dos arquivos ${err}`   }} );
+    .catch( async (err )=> {
+              await db.update(clientes)
+             .set(
+                { 
+                    status_backup: 'erro',  
+                    msg_backup:"erro ao tentar  executar o zip dos arquivos"
+                    })
+        return { erro:true, msg:`erro ao tentar  executar o zip dos arquivos ${err}`   }
+        } );
 
              for( const  database  of databases ){
                  limparArquivosSql(database, id)
             }
-                
        
 
              await db.update(clientes)
@@ -68,10 +81,14 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
                   data_ultimo_backup: sql`NOW()`,
                   arquivoMaisRecente: `Bkp-${databaseName}_${data}_${hora}.zip`, 
                     status_backup: 'finalizado',  
-                    bancos_backup: String(databases)  
+                    bancos_backup: String(databases), 
+                    msg_backup: ` backup executado com sucesso arquivo: Bkp-${databaseName}_${data}_${hora}.zip `
                 })
                 .where(eq(clientes.codigo, codigoCliente ))
     }catch(e){
+                 await db.update(clientes).set( { status_backup: 'erro',  
+                    msg_backup:"erro ao tentar  executar o zip dos arquivos"  })   
+
         return { erro:true, msg: ` erro ao tentar executar o backup ${e} `  }
     }
 

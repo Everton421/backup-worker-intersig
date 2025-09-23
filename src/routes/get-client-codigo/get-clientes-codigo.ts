@@ -24,7 +24,6 @@ export const getClientesPorCodigo : FastifyPluginAsyncZod= async (server)=>{
         .from(clientes)
          .where( sql`${clientes.ativo} =  'S' AND ${clientes.codigo} = ${codigo} `  )
 
-            console.log(client)
         if( client .length > 0 ){
            return reply.send( { cliente: client }  );
         } 

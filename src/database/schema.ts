@@ -87,9 +87,10 @@ export const clientes = mysqlTable("clientes", {
     atualizar: mysqlEnum("ATUALIZAR", ['S','N']).default('N'),
     data_ultimo_backup: datetime("DATA_ULTIMO_BACKUP" , { mode: 'string' } ).default('NULL'),
     hora_agenda_backup: time("HORA_AGENDA_BACKUP"   ).default('00:00:00'),
-    bancos_backup: text("BANCOS_BACKUP"  ).default('NULL'),
+    bancos_backup: varchar("BANCOS_BACKUP"  ,{ length: 255 }).default('NULL'),
     status_backup: statusBackup.default('pendente'),
-    efetuar_backup: efetuarBackup.default('N') 
+    efetuar_backup: efetuarBackup.default('N'), 
+    msg_backup: varchar("MSG_BACKUP", { length: 255 }).default('NULL'),
     },
 (table) => [
     unique("CNPJ").on(table.cnpj),

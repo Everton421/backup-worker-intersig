@@ -33,7 +33,7 @@ export const executarBackup: FastifyPluginAsyncZod = async ( server ) =>{
 
                         if( conn !== null ){
                             if(!host || !usuarioMysql || !senhaMysql || !portaMysql  ||  !nomeBanco){
-                            reply.status(400).send({ msg: "Verifique o cadastro cliente, um ou mais parametros não foram encontrados"})
+                              reply.status(400).send({ msg: "Verifique o cadastro cliente, um ou mais parametros não foram encontrados"})
                             }
                             
                             try{
