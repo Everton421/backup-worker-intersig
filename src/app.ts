@@ -8,8 +8,8 @@ import { getClientesPorCodigo } from "./routes/get-client-codigo/get-clientes-co
 import { testeConexaoBanco } from "./routes/teste-conexao-banco-cliente/teste-conexao-banco-cliente.ts";
 import { executarBackup } from "./routes/executar-backup/executar-backup.ts";
 import { getDatabases } from "./routes/get-databases/get-databases.ts";
-import fs from  'node:fs' ;
-import path from 'node:path'
+import fs from  'fs' ;
+import path from 'path'
 
 
     let certPathEnv ; 
