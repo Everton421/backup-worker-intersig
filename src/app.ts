@@ -8,9 +8,14 @@ import { getClientesPorCodigo } from "./routes/get-client-codigo/get-clientes-co
 import { testeConexaoBanco } from "./routes/teste-conexao-banco-cliente/teste-conexao-banco-cliente.ts";
 import { executarBackup } from "./routes/executar-backup/executar-backup.ts";
 import { getDatabases } from "./routes/get-databases/get-databases.ts";
-import fs from  'fs' ;
-import path from 'path'
-
+import fs from  'node:fs' ;
+import path from 'node:path'
+import { loginRoute } from "./routes/login/login.ts";
+import { postUser } from "./routes/post-user/post-user.ts";
+import { putUser } from "./routes/put-user/put-user.ts";
+import { getUsers } from "./routes/get-user/get-user.ts";
+import { getUserById } from "./routes/get-user-id/get-user-id.ts";
+import cors from '@fastify/cors'
 
     let certPathEnv ; 
     if(process.env.PATH_CERT){
@@ -40,9 +45,16 @@ import path from 'path'
 const server = fastify(
         {
            logger: false,
-            https:httpsOptions
+            //https:httpsOptions
          }
 ).withTypeProvider<ZodTypeProvider>()
+
+  server.register(cors,{
+      origin:'*',
+      methods: 'GET,OPTIONS,PATCH,DELETE,POST,PUT',
+      allowedHeaders: '*',
+      credentials: true,
+  })
 
 server.register( fastifySwagger,{
     openapi:{
@@ -61,14 +73,16 @@ server.register( scalarApiReference,{
 
  server.setValidatorCompiler(validatorCompiler)
 
-
 server.register(getClientes)
 server.register(getClientesPorCodigo)
 
 server.register(testeConexaoBanco)
-
 server.register(executarBackup);
 server.register(getDatabases);
-
+server.register(loginRoute);
+server.register(postUser);
+server.register(putUser)
+server.register(getUsers)
+server.register(getUserById)
 
 export {server }

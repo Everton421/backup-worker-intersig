@@ -8,4 +8,4 @@ import { server } from "./app.ts";
 
 
   
-    server.listen( { port: port , host: '0.0.0.0' } ,()=>console.log(` Serve is running post ${port} `))
+    server.listen( { port: port , host: '0.0.0.0' } ,()=>console.log(` Server is running port ${port} `))

@@ -96,5 +96,14 @@ export const clientes = mysqlTable("clientes", {
     unique("CNPJ").on(table.cnpj),
 ]);
 
- 
+ export const users = mysqlTable('users',{
+    id: int().autoincrement().notNull(),
+    nome_user: varchar({length:255}).default('NULL'),
+    email_user: varchar({length:255}).default('NULL'),
+    senha_user: varchar({length:255}).default('NULL'),
+    type: varchar({length:255}).default('NULL'),
+    surname: varchar({length:255}).default('NULL'),
+    reset_token: varchar({length:255}).default('NULL'),
+    reset_token_validade: datetime({mode:'string'}).default('NULL') 
+ })
  

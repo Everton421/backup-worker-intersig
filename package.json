@@ -1,11 +1,11 @@
 {
   "name": "api-backup",
   "version": "1.0.0",
-  "description": "", 
+  "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "node --env-file .env --watch --experimental-strip-types src/server.ts",
-    "start": "node --watch --experimental-strip-types src/server.ts", 
+    "start": "node --watch --experimental-strip-types src/server.ts",
     "bkp": "tsx --env-file .env src/services/exe-backup.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/cors": "^11.1.0",
     "@fastify/swagger": "^9.5.1",
     "@fastify/swagger-ui": "^5.2.3",
     "@scalar/fastify-api-reference": "^1.35.6",
@@ -31,6 +32,7 @@
     "zod": "^4.1.9"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.5.2",
     "drizzle-kit": "^0.31.4",
     "tsx": "^4.20.5",
