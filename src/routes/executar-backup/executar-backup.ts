@@ -17,7 +17,15 @@ export const executarBackup: FastifyPluginAsyncZod = async ( server ) =>{
             summary:'Executar backup do cliente',
             params : z.object({
                 codigo:z.string().describe('codigo do cliente a ser executado o backup')
-            })
+            }),
+            response:{
+                200: z.object({msg:z.string()}),
+                401: z.object({msg:z.string(`o cliente nao esta autorizado para executar backup`)}),
+                400: z.object({msg:z.string()}),
+                500: z.object({msg:z.string()}),
+            
+            }
+
         }
     }, 
     async ( request, reply )=>{
@@ -52,7 +60,7 @@ export const executarBackup: FastifyPluginAsyncZod = async ( server ) =>{
                                                             databases.push(db.database_name)
                                                         })
 
-                                                    reply.status(202).send({ msg: 'backup iniciado ' })  
+                                                    reply.status(200).send({ msg: 'backup iniciado ' })  
                                                     const config  = {
                                                         host: dataClient.host,
                                                         porta: String(dataClient.portaMysql),
@@ -65,7 +73,7 @@ export const executarBackup: FastifyPluginAsyncZod = async ( server ) =>{
                                 
                                 }catch(e){
                                 console.log(e)
-                                return reply.status(500).send({ msg: e })
+                                return reply.status(500).send({ msg: `Erro ao tentar executar o backup ${e}` })
                             }finally{
                                 if (conn) {
                                         conn.release(); // Libera a conexão de volta ao pool
