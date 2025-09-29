@@ -1,7 +1,7 @@
  
 
 import fs from 'fs/promises'; // Importe a versão de promessa de fs
-import path from 'path'
+import path,{ dirname} from 'node:path'
 import { fileURLToPath } from 'url';
 
 type resultDeleteFiles = {
@@ -10,9 +10,9 @@ type resultDeleteFiles = {
 }
 
 export async function limparArquivosSql(dbName: string, id: string): Promise<resultDeleteFiles | void> {
-    const __filename = fileURLToPath("file:///C:/Users/usuario/Desktop/apps/api-backup/src/services/delete-arquivos.ts");
-
-    const __dirname = path.dirname(__filename);
+    
+       const __dirname = dirname(fileURLToPath(import.meta.url))
+    
     const tempPath = path.resolve(__dirname, '../../temp');
     const fileNameToDelete = `${dbName}-${id}.sql`;
 

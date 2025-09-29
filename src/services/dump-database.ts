@@ -18,8 +18,7 @@ type resultDumpDatabase = {
 
  export function dumpDatabase( mysqlConfig:mysqlConfig, dbName:string , id:string ) :Promise<resultDumpDatabase>{
 
-        const __filename = fileURLToPath("file:///C:/Users/usuario/Desktop/apps/api-backup/src/services/dump-database.ts");
-        const __dirname = path.dirname(__filename);
+      const __dirname = dirname(fileURLToPath(import.meta.url))
     
             const pathTemp = path.resolve(__dirname,`../../temp/${dbName}-${id}.sql`)  
         

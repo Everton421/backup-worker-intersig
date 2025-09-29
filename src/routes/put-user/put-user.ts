@@ -6,9 +6,12 @@ import { eq } from "drizzle-orm";
 import { hash } from "argon2";
 
 export const putUser: FastifyPluginAsyncZod = async ( server )=>{
-    server.put('/usuarios',{
+    server.put('/usuarios/:id',{
         schema:{
             tags:[ 'usuarios'],
+            querystring: z.object({
+                id: z.number()
+            }),
             body: z.object({
                 email: z.string(),
                 senha: z.string(),
@@ -23,8 +26,9 @@ export const putUser: FastifyPluginAsyncZod = async ( server )=>{
     }, async ( request, reply  )=>{
 
         const { email,  nome, senha } = request.body
+        const  { id } = request.query
         
-        const verifyuser = await db.select().from(users).where(eq( users.email_user , email))
+        const verifyuser = await db.select().from(users).where(eq( users.id , id))
 
         if( verifyuser.length === 0 ) return reply.status(400).send({ msg:"não existe usuario com este email"}) 
         

@@ -10,7 +10,6 @@ import { randomUUID } from 'node:crypto';
 import { db } from '../database/client.ts';
 import { clientes } from '../database/schema.ts';
 import { eq, sql } from 'drizzle-orm';
-
     export type mysqlConfig = {
         host:string,
         porta:string,
@@ -28,10 +27,19 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
         const dateService = dateHook();
         const {  data, hora} = dateService.getDataHora()
 
- const __filename = fileURLToPath("file:///C:/Users/usuario/Desktop/apps/api-backup/src/services/exec-backup.ts");
- const __dirname = path.dirname(__filename);
- 
-  const zipPath = path.resolve(__dirname,'../../backups', `Bkp-${databaseName}_${data}_${hora}.zip`)
+ //const __filename = fileURLToPath("file:///C:/Users/usuario/Desktop/apps/api-backup/src/services/exec-backup.ts");
+ //const  dirnameServices = path.dirname(__dirname);
+ const __dirname = dirname(fileURLToPath(import.meta.url))
+       let zipPath = path.resolve(__dirname,'../../backups', `Bkp-${databaseName}_${data}_${hora}.zip`)
+
+        if( process.env.PATH_BACKUPS){
+            let folder =process.env.PATH_BACKUPS
+                if( fs.existsSync(folder)){
+                  zipPath =  path.resolve(folder , `Bkp-${databaseName}_${data}_${hora}.zip`)
+                }
+            }
+
+  
 
     try{
          if( databases.length > 0 ){
@@ -58,7 +66,7 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
  
          }
 
-       zipBackup(zipPath)
+       zipBackup(zipPath, databases,id)
     .then(() =>  {    return { erro:false, msg: `Backup realizado com sucesso!` }})
     .catch( async (err )=> {
               await db.update(clientes)
