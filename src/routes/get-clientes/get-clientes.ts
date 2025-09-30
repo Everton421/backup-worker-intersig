@@ -7,8 +7,7 @@ import z from "zod";
 export const getClientes : FastifyPluginAsyncZod= async (server)=>{
     server.get('/clientes', {
         schema:{ 
-            tags:['clientes'],
-            summary:'listar clientes',
+             tags:['clientes'],
             querystring: z.object({
               search: z.string().optional(),
               efetuar_backup: z.enum([ 'S','N']).optional(),
@@ -17,7 +16,6 @@ export const getClientes : FastifyPluginAsyncZod= async (server)=>{
               page: z.coerce.number().optional().default(1),
               host: z.string().optional(),
             }),
-           
         }
 
     }, async ( request, reply)=>{
@@ -50,17 +48,17 @@ export const getClientes : FastifyPluginAsyncZod= async (server)=>{
         }
       
             
-
-      const clients:any = await 
+      const clients = await 
         db.select()
-        .from(clientes)
+         .from(clientes)
          .where( conditions.length > 0 ? and(...conditions) : undefined )  // Use 'and' and handle empty conditions
-        .groupBy( clientes[groupBy] )
-        .orderBy( asc( clientes[orderBy]))
+         .groupBy( clientes[groupBy] )
+         .orderBy( asc( clientes[orderBy]))
+        
 
+         if( clients.length > 0 ){
+            return reply.status(200).send( { clientes:clients} );
+         } 
 
-        if( clients.length > 0 ){
-           return reply.send( clients );
-        }
     })
 }

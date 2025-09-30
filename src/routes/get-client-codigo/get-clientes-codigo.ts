@@ -7,8 +7,7 @@ import z from "zod";
 export const getClientesPorCodigo : FastifyPluginAsyncZod= async (server)=>{
     server.get('/clientes/:codigo', {
         schema:{ 
-            tags:['cliente'],
-            summary:'listar cliente por codigo',
+            tags:['clientes'],
             params: z.object({
               codigo: z.string(),
             }),
