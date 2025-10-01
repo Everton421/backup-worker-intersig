@@ -5,6 +5,8 @@ import { db } from "../../database/client.ts";
 import { clientes } from "../../database/schema.ts";
 import { eq } from "drizzle-orm";
 import {  type PoolConnection } from "mysql2/promise";
+import { checkRequest } from "../../hooks/check-request-jwt.ts";
+import { checkUser } from "../../hooks/check-user-jwt.ts";
 
 type objectDatabase = { database: string }
 
@@ -12,9 +14,16 @@ interface resultDatabase   { Database: string }
 
 export const getDatabases :FastifyPluginAsyncZod = async ( server )=>{
         server.get('/databases',{
+              preHandler:[
+                        checkRequest,
+                        checkUser('suport') 
+                    ],
             schema:{
                 tags:['databases'],
                 summary:'obtem os bancos de dados de um host',
+                   headers: z.object({
+                                   authorization: z.string()
+                                      }),
                 querystring: z.object({
                     host: z.string()
                 }),

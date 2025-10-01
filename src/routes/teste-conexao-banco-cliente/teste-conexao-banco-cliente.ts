@@ -1,12 +1,21 @@
 import { type FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import z from "zod";
 import mysql2 from 'mysql2/promise'
+import { checkUser } from "../../hooks/check-user-jwt.ts";
+import { checkRequest } from "../../hooks/check-request-jwt.ts";
 
  export const testeConexaoBanco: FastifyPluginAsyncZod = async ( server )=>{
     server.post('/conexao/teste', {
+          preHandler:[
+                    checkRequest,
+                    checkUser('suport') 
+                ],
         schema:{
             tags:['conexao-banco'],
             summary:'teste conexao',
+                 headers: z.object({
+                          authorization: z.string()
+                     }),
             body: z.object({
                 host:z.string(),
                 porta:z.string(),

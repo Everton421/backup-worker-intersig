@@ -3,12 +3,21 @@ import { db } from "../../database/client.ts";
 import { clientes } from "../../database/schema.ts";
 import { and, asc, eq, ilike, like, or, SQL, sql } from "drizzle-orm";
 import z from "zod";
+import { checkRequest } from "../../hooks/check-request-jwt.ts";
+import { checkUser } from "../../hooks/check-user-jwt.ts";
 
 export const getClientes : FastifyPluginAsyncZod= async (server)=>{
     server.get('/clientes', {
+        preHandler:[
+            checkRequest,
+            checkUser('suport') 
+        ],
         schema:{ 
              tags:['clientes'],
-            querystring: z.object({
+           headers: z.object({
+                          authorization: z.string()
+                      }),
+             querystring: z.object({
               search: z.string().optional(),
               efetuar_backup: z.enum([ 'S','N']).optional(),
               orderBy: z.enum(['codigo', 'nomeFantasia','razaoSocial', 'efetuar_backup','data_ultimo_backup']).optional().default('codigo'),
@@ -20,6 +29,8 @@ export const getClientes : FastifyPluginAsyncZod= async (server)=>{
 
     }, async ( request, reply)=>{
        
+       
+
         const { orderBy, page, search, groupBy, host, efetuar_backup } = request.query
         
         const conditions:SQL[] =[]; 

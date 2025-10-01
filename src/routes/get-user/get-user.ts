@@ -2,11 +2,20 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import z from "zod";
 import { db } from "../../database/client.ts";
 import { users } from "../../database/schema.ts";
+import { checkRequest } from "../../hooks/check-request-jwt.ts";
+import { checkUser } from "../../hooks/check-user-jwt.ts";
 
 export const getUsers : FastifyPluginAsyncZod = async ( server ) =>{
      server.get('/usuarios',{
+          preHandler:[
+                    checkRequest,
+                    checkUser('suport') 
+                ],
          schema:{
             tags: ['usuarios'],
+               headers: z.object({
+                                      authorization: z.string()
+                  }),
             response:{
                  200: z.object({
                     usuarios: z.array(

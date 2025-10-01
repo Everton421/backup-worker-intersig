@@ -3,11 +3,20 @@ import z from "zod";
 import { db } from "../../database/client.ts";
 import { users } from "../../database/schema.ts";
 import { eq } from "drizzle-orm";
+import { checkRequest } from "../../hooks/check-request-jwt.ts";
+import { checkUser } from "../../hooks/check-user-jwt.ts";
 
 export const getUserById : FastifyPluginAsyncZod = async ( server ) =>{
      server.get('/usuarios/:id',{
+          preHandler:[
+                    checkRequest,
+                    checkUser('suport') 
+                ],
          schema:{
             tags: ['usuarios'],
+               headers: z.object({
+                        authorization: z.string()
+                 }),
             params: z.object({
                 id: z.string()
             }),

@@ -5,6 +5,8 @@ import { clientes } from "../../database/schema.ts";
 import { eq } from "drizzle-orm";
 import { execBackup  } from "../../services/exe-backup.ts";
 import { createClientPoolConnection } from "../../database/mysql-create-pool.ts";
+import { checkRequest } from "../../hooks/check-request-jwt.ts";
+import { checkUser } from "../../hooks/check-user-jwt.ts";
 
 
 type resultDatabase =  { database_name: string } 
@@ -12,9 +14,16 @@ type resultDatabase =  { database_name: string }
 
 export const executarBackup: FastifyPluginAsyncZod = async ( server ) =>{
     server.post('/executar-backup/:codigo', {
+          preHandler:[
+                    checkRequest,
+                    checkUser('suport') 
+                ],
         schema:{
             tags: ["executar-backup"],
             summary:'Executar backup do cliente',
+            headers: z.object({
+                authorization: z.string()
+            }),
             params : z.object({
                 codigo:z.string().describe('codigo do cliente a ser executado o backup')
             }),

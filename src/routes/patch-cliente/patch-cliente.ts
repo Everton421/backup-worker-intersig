@@ -3,14 +3,23 @@ import z  from "zod";
 import { db } from "../../database/client.ts";
 import { clientes } from "../../database/schema.ts";
 import { eq, SQL } from "drizzle-orm";
+import { checkRequest } from "../../hooks/check-request-jwt.ts";
+import { checkUser } from "../../hooks/check-user-jwt.ts";
 
 
 export const pathCliente:FastifyPluginAsyncZod = async (server )=>{
     server.patch('/clientes/:codigo', {
+          preHandler:[
+                    checkRequest,
+                    checkUser('suport') 
+                ],
         schema:{
             tags: ['clientes'],
+                 headers: z.object({
+                                    authorization: z.string()
+                             }),
             params: z.object({
-                codigo:z.string() 
+                codigo:z.string()  
             }),
             body: z.object({
                 hora_agenda_backup: z.string().optional(),
@@ -28,17 +37,21 @@ export const pathCliente:FastifyPluginAsyncZod = async (server )=>{
         },
     },
  async ( request, reply )=>{
-                    console.log(request.params)
 
-        const { acesso, efetuar_backup, hora_agenda_backup, portaMysql, senhaMysql,usuarioMysql  } = request.body
+        const {portaMysql, acesso, efetuar_backup, hora_agenda_backup,   senhaMysql,usuarioMysql  } = request.body
         const {  codigo } = request.params
+
+            let porta 
+            if(portaMysql !== undefined ){
+                porta = Number(portaMysql)
+            }
  
                 const values  =
                  { 
                     acesso: acesso,
                     efetuar_backup: efetuar_backup,
                     hora_agenda_backup: hora_agenda_backup,
-                    portaMysql: Number(portaMysql),
+                    portaMysql:  porta  ,
                     senhaMysql: senhaMysql,
                     usuarioMysql: usuarioMysql 
                  }
@@ -46,6 +59,7 @@ export const pathCliente:FastifyPluginAsyncZod = async (server )=>{
                  const validateClient = await db.select().from(clientes).where(eq(clientes.codigo, Number(codigo)))
 
                  if(validateClient.length === 0 ){
+                    console.log("Nao foir encontrado cliente codigo:", codigo)
                     reply.status(400);
                  }
 
@@ -62,6 +76,7 @@ export const pathCliente:FastifyPluginAsyncZod = async (server )=>{
                         console.log("Erro ao atualizar cliente ",e)
                         reply.status(500);
                      }
+                  
                     }
     )
 }   

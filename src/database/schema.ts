@@ -102,7 +102,7 @@ export const clientes = mysqlTable("clientes", {
     email_user: varchar({length:255}).default('NULL'),
     senha_user: varchar({length:255}).default('NULL'),
     type: varchar({length:255}).default('NULL'),
-    surname: varchar({length:255}).default('NULL'),
+    user_name: varchar({length:255}).default('NULL'),
     reset_token: varchar({length:255}).default('NULL'),
     reset_token_validade: datetime({mode:'string'}).default('NULL') 
  })

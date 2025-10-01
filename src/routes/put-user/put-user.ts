@@ -1,16 +1,25 @@
-import  type { FastifyPluginAsyncZod }  from "fastify-type-provider-zod";
+import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import z from "zod";
 import { db } from "../../database/client.ts";
 import { users } from "../../database/schema.ts";
 import { eq } from "drizzle-orm";
 import { hash } from "argon2";
+import { checkRequest } from "../../hooks/check-request-jwt.ts";
+import { checkUser } from "../../hooks/check-user-jwt.ts";
 
-export const putUser: FastifyPluginAsyncZod = async ( server )=>{
-    server.put('/usuarios/:id',{
-        schema:{
-            tags:[ 'usuarios'],
-            querystring: z.object({
-                id: z.number()
+export const putUser: FastifyPluginAsyncZod = async (server) => {
+    server.put('/usuarios/:id', {
+        preHandler: [
+            checkRequest,
+            checkUser('suport')
+        ],
+        schema: {
+            tags: ['usuarios'],
+            headers: z.object({
+                authorization: z.string()
+            }),
+            params: z.object({
+                id: z.string()
             }),
             body: z.object({
                 email: z.string(),
@@ -22,26 +31,26 @@ export const putUser: FastifyPluginAsyncZod = async ( server )=>{
                 }),
                 400: z.object({ msg: z.string() })
             }
-        } ,
-    }, async ( request, reply  )=>{
+        },
+    }, async (request, reply) => {
 
-        const { email,  nome, senha } = request.body
-        const  { id } = request.query
-        
-        const verifyuser = await db.select().from(users).where(eq( users.id , id))
+        const { email, nome, senha } = request.body
+        const { id } = request.params
 
-        if( verifyuser.length === 0 ) return reply.status(400).send({ msg:"não existe usuario com este email"}) 
-        
-            const hasPassword = await hash(senha)
-        
-            const resultUpdate = await db.update(users)
-            .set({ email_user: email, senha_user: hasPassword, surname: nome, nome_user: nome})
-            .where(eq( users.email_user, email ))
-    
-                if(resultUpdate.length > 0 && resultUpdate[0].affectedRows > 0  ){
-                    return reply.status(201)
-                }
- 
-        })  
+        const verifyuser = await db.select().from(users).where(eq(users.id, Number(id)))
+
+        if (verifyuser.length === 0) return reply.status(400).send({ msg: "não existe usuario com este email" })
+
+        const hasPassword = await hash(senha)
+
+        const resultUpdate = await db.update(users)
+            .set({ email_user: email, senha_user: hasPassword, user_name: nome, nome_user: nome })
+            .where(eq(users.email_user, email))
+
+        if (resultUpdate.length > 0 && resultUpdate[0].affectedRows > 0) {
+            return reply.status(201)
+        }
+
+    })
 
 }
