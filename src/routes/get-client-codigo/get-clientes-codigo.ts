@@ -6,35 +6,35 @@ import z from "zod";
 import { checkRequest } from "../../hooks/check-request-jwt.ts";
 import { checkUser } from "../../hooks/check-user-jwt.ts";
 
-export const getClientesPorCodigo : FastifyPluginAsyncZod= async (server)=>{
+export const getClientesPorCodigo: FastifyPluginAsyncZod = async (server) => {
     server.get('/clientes/:codigo', {
-        preHandler:[
-                  checkRequest,
-                  checkUser('suport') 
-              ],
-        schema:{ 
-            tags:['clientes'],
-               headers: z.object({
-                                      authorization: z.string()
-                                  }),
+        preHandler: [
+            checkRequest,
+            checkUser('suport')
+        ],
+        schema: {
+            tags: ['clientes'],
+            headers: z.object({
+                authorization: z.string()
+            }),
             params: z.object({
-              codigo: z.string(),
+                codigo: z.string(),
             }),
 
         }
 
-    }, async ( request, reply)=>{
-       
-        const {  codigo  } = request.params
+    }, async (request, reply) => {
 
-      const client = await 
-        db.select()
-        .from(clientes)
-         .where( sql`${clientes.ativo} =  'S' AND ${clientes.codigo} = ${codigo} `  )
+        const { codigo } = request.params
 
-        if( client .length > 0 ){
-           return reply.send( { cliente: client }  );
-        } 
+        const client = await
+            db.select()
+                .from(clientes)
+                .where(sql`${clientes.ativo} =  'S' AND ${clientes.codigo} = ${codigo} `)
+
+        if (client.length > 0) {
+            return reply.send({ cliente: client });
+        }
 
     })
 }
