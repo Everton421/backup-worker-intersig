@@ -46,7 +46,7 @@ import { pathCliente } from "./routes/patch-cliente/patch-cliente.ts";
 const server = fastify(
         {
            logger: false,
-            //https:httpsOptions
+             https:httpsOptions
          }
 ).withTypeProvider<ZodTypeProvider>()
 
