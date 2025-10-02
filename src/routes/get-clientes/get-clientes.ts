@@ -1,6 +1,6 @@
 import { type FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { db } from "../../database/client.ts";
-import { clientes } from "../../database/schema.ts";
+import { clientes, efetuarBackup } from "../../database/schema.ts";
 import { and, asc, eq, ilike, like, or, SQL, sql } from "drizzle-orm";
 import z from "zod";
 import { checkRequest } from "../../hooks/check-request-jwt.ts";
@@ -22,8 +22,9 @@ export const getClientes : FastifyPluginAsyncZod= async (server)=>{
               efetuar_backup: z.enum([ 'S','N']).optional(),
               orderBy: z.enum(['codigo', 'nomeFantasia','razaoSocial', 'efetuar_backup','data_ultimo_backup']).optional().default('codigo'),
               groupBy: z.enum(['codigo', 'ip', 'host']).default('codigo'),
-              page: z.coerce.number().optional().default(1),
               host: z.string().optional(),
+              ativo: z.enum(['S','N']).optional().default('S'),
+
             }),
         }
 
@@ -31,7 +32,7 @@ export const getClientes : FastifyPluginAsyncZod= async (server)=>{
        
        
 
-        const { orderBy, page, search, groupBy, host, efetuar_backup } = request.query
+        const { orderBy, ativo,    search, groupBy, host, efetuar_backup } = request.query
         
         const conditions:SQL[] =[]; 
        
@@ -53,10 +54,14 @@ export const getClientes : FastifyPluginAsyncZod= async (server)=>{
         if (host) {
             conditions.push(eq(clientes.host, host));
         }
+        if( ativo){
+            conditions.push(eq(clientes.ativo, ativo));
+        }
     
         if (efetuar_backup) {
             conditions.push(eq(clientes.efetuar_backup, efetuar_backup));
         }
+
       
             
       const clients = await 
