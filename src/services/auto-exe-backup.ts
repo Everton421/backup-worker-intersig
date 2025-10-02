@@ -110,66 +110,81 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
     return minutes
   }
 
-export async function mainTask(){
-    /// verifica os clientes as 5:00 da manhã 
-    //cron.schedule( ` * 0 5 * * * `, async ()=>{
-    cron.schedule( ` 13 15 * * *  `, async ()=>{
+export async function mainTask() {
+    // Agendar a tarefa principal para rodar às 5:00 AM todos os dias
+    cron.schedule('0 5 * * *', async () => {
+        console.log("Tarefa principal iniciada: Verificando clientes e agendando backups.");
 
-    console.log("Tarefa agendada")
-    const resultClientExecBackup = await db.select().from(clientes).where( eq(clientes.efetuar_backup, 'S' ) );  
+        try {
+            // Busca todos os clientes que devem ter o backup executado
+            const resultClientExecBackup = await db.select().from(clientes).where(eq(clientes.efetuar_backup, 'S'));
 
-    //const hourBackup = 
+            if (resultClientExecBackup.length > 0) {
+                for (const clientConfig of resultClientExecBackup) {
+                    // Para cada cliente, agenda o backup no horário configurado
+                    if (clientConfig.hora_agenda_backup) {
+                        const hourBackup = Number(formatHours(clientConfig.hora_agenda_backup));
+                        const minutesBackup = Number(formatMinutes(clientConfig.hora_agenda_backup));
 
-        if(resultClientExecBackup.length > 0 ){
-            for( const i of resultClientExecBackup ){
-                    const resultClient = await db.select().from(clientes).where(eq(clientes.codigo , i.codigo))
-                    if(resultClient.length >  0 ){
-                        let configClient = resultClient[0];
-                if(configClient.hora_agenda_backup){
-                     const hourBackup =   Number(  formatHours(configClient.hora_agenda_backup) );
-                     const minutesBackup  = Number( formatMinutes(configClient.hora_agenda_backup) )      
+                        // Garante que os valores de hora e minuto são válidos
+                        if (isNaN(hourBackup) || isNaN(minutesBackup) || hourBackup < 0 || hourBackup > 23 || minutesBackup < 0 || minutesBackup > 59) {
+                            console.error(`Hora de backup inválida para o cliente ${clientConfig.nomeFantasia}. Verifique a configuração.`);
+                            continue; // Pula para o próximo cliente
+                        }
 
-                      //  cron.schedule( `${minutesBackup} ${hourBackup} * * * `, ()=>{
-                         cron.schedule( `*/1 * * * * `, async  ()=>{
-                        console.log(`Tarefa iniciada ${hourBackup}:${minutesBackup} ` )
-                                console.log(` Executando backup `,i.nomeFantasia)
+                        // Agenda o backup para o cliente específico
+                        cron.schedule(`${minutesBackup} ${hourBackup} * * *`, async () => {
+                            console.log(`Tarefa de backup iniciada para ${clientConfig.nomeFantasia} às ${hourBackup}:${minutesBackup}`);
 
-                            const { codigo , host , portaMysql, senhaMysql, usuarioMysql, nomeBanco} = configClient
-                                
-                            if( !host || !portaMysql || !senhaMysql || !usuarioMysql || !nomeBanco ) {
-                                console.log(`Verifique o cadastro cliente ${configClient.nomeFantasia}, verifique as configurações da conexao do banco de dados do cliente`)
+                            const { codigo, host, portaMysql, senhaMysql, usuarioMysql, nomeBanco } = clientConfig;
+
+                            if (!host || !portaMysql || !senhaMysql || !usuarioMysql || !nomeBanco) {
+                                console.error(`Verifique o cadastro cliente ${clientConfig.nomeFantasia}, verifique as configurações da conexão do banco de dados do cliente`);
                                 return;
                             }
 
-                          const config:mysqlConfig = {
-                            host: host,
-                            porta: String( portaMysql),
-                            senha:  senhaMysql,
-                            usuario:   usuarioMysql
-                           }
-                    const conn = await createClientPoolConnection(host,senhaMysql, usuarioMysql, String(portaMysql) );
-                           if(conn !== null ){
+                            const config: mysqlConfig = {
+                                host: host,
+                                porta: String(portaMysql),
+                                senha: senhaMysql,
+                                usuario: usuarioMysql
+                            };
 
-                   const [ results, fields  ] = await conn.query(`SELECT schema_name as database_name FROM information_schema.schemata WHERE schema_name LIKE '%${nomeBanco}%';`)
-                             const resultDatabases = results as resultDatabase[];
-                                        if(resultDatabases.length > 0 ){
-                                              const databases: string[] = []
-                                                        resultDatabases.forEach((db)=>{
-                                                            databases.push(db.database_name)
-                                                        })
-                                  await execBackup(Number(codigo), config,databases, String(nomeBanco) )
-                                   }
-                              }
-                          })
+                            try {
+                                const conn = await createClientPoolConnection(host, senhaMysql, usuarioMysql, String(portaMysql));
 
-                       }
-                 }
+                                if (conn !== null) {
+                                    const [results] = await conn.query(`SELECT schema_name as database_name FROM information_schema.schemata WHERE schema_name LIKE '%${nomeBanco}%';`) as [resultDatabase[], any];
+
+                                    const resultDatabases = results; // Remove a necessidade de casting
+
+                                    if (resultDatabases.length > 0) {
+                                        const databases: string[] = [];
+                                        resultDatabases.forEach((db) => {
+                                            databases.push(db.database_name);
+                                        });
+                                        await execBackup(Number(codigo), config, databases, String(nomeBanco));
+                                    }
+                                }
+                            } catch (error) {
+                                console.error(`Erro ao executar o backup para ${clientConfig.nomeFantasia}:`, error);
+                            }
+                        });
+
+                        console.log(`Backup agendado para ${clientConfig.nomeFantasia} às ${hourBackup}:${minutesBackup}`);
+                    } else {
+                        console.warn(`Cliente ${clientConfig.nomeFantasia} habilitado para backup, mas sem hora agendada. Ignorando.`);
+                    }
+                }
+            } else {
+                console.log("Nenhum cliente habilitado para backup encontrado.");
             }
-
+        } catch (error) {
+            console.error("Erro ao processar a tarefa principal:", error);
         }
 
-    })
+        console.log("Tarefa principal finalizada.");
+    });
 
-
- }
-
+    console.log("Tarefa principal agendada para rodar às 5:00 AM todos os dias.");
+}
