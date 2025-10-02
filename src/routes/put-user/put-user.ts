@@ -33,23 +33,24 @@ export const putUser: FastifyPluginAsyncZod = async (server) => {
             }
         },
     }, async (request, reply) => {
-
         const { email, nome, senha } = request.body
         const { id } = request.params
 
-        const verifyuser = await db.select().from(users).where(eq(users.id, Number(id)))
+         const verifyuser = await db.select().from(users).where(eq(users.id, Number(id)))
+ 
+         if (verifyuser.length === 0) {
+            return reply.status(400).send({ msg: "nao existe usuario com este codigo" })
+         }
+         const hasPassword = await hash(senha)
+ 
+         const resultUpdate = await db.update(users)
+             .set({ email_user: email, senha_user: hasPassword, nome_user: nome })
+             .where(eq(users.id, Number(id)))
+ 
+         if (resultUpdate.length > 0 && resultUpdate[0].affectedRows > 0) {
+             return reply.status(201)
+         }
 
-        if (verifyuser.length === 0) return reply.status(400).send({ msg: "não existe usuario com este email" })
-
-        const hasPassword = await hash(senha)
-
-        const resultUpdate = await db.update(users)
-            .set({ email_user: email, senha_user: hasPassword, user_name: nome, nome_user: nome })
-            .where(eq(users.email_user, email))
-
-        if (resultUpdate.length > 0 && resultUpdate[0].affectedRows > 0) {
-            return reply.status(201)
-        }
 
     })
 
