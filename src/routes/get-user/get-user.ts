@@ -32,7 +32,7 @@ export const getUsers : FastifyPluginAsyncZod = async ( server ) =>{
          }
      }, async  (request , reply )=>{
 
-        const responseUsers = await db.select({ id: users.id,nome_user: users.nome_user, email_user: users.email_user }).from(users)
+        const responseUsers = await db.select({ id: users.id,nome_user: users.user_name, email_user: users.email_user }).from(users)
         if(responseUsers.length === 0 ){
             return reply.status(400)
         }
