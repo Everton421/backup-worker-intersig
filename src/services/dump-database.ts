@@ -30,6 +30,7 @@ type resultDumpDatabase = {
             `--host=${mysqlConfig.host}`,
             `--user=${mysqlConfig.usuario}`,
             `--password=${mysqlConfig.senha}`,
+            `--port=${mysqlConfig.porta}`,
             '--column-statistics=0',
             `--databases`,
             dbName,
