@@ -50,7 +50,7 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
                             console.log(result);
                         }).catch(err => {
                             console.error(err);
-                         return { erro:true, msg: `erro ao tentar  executar o dump ${err}`  }
+                         return { erro:true, msg: `erro ao tentar  executar o dump ${err.msg}`  }
 
                     });
                 }
