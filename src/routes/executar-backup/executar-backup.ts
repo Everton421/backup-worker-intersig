@@ -57,7 +57,7 @@ export const executarBackup: FastifyPluginAsyncZod = async (server) => {
 
                             const [results, fields] = await conn.query(`SELECT schema_name as database_name
                                                     FROM information_schema.schemata
-                                                    WHERE schema_name LIKE '%${nomeBanco}%';`)
+                                                    WHERE schema_name LIKE '${nomeBanco}%';`)
 
                             const resultDatabases = results as resultDatabase[];
 
