@@ -55,13 +55,16 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
                     });
                 }
                 if( resultStatus && resultStatus.erro){
-            await db.update(clientes)
-             .set(
-                { status_backup: 'erro',  
-                    msg_backup: resultStatus.msg 
-                    })
-                .where(eq(clientes.codigo, codigoCliente ))
-                 return { erro:true, msg:resultStatus.msg     }
+                    await db.update(clientes)
+                    .set(
+                        { status_backup: 'erro',  
+                            msg_backup: resultStatus.msg 
+                            })
+                        .where(eq(clientes.codigo, codigoCliente ))
+                          for( const  database  of databases ){
+                            limparArquivosSql(database, id)
+                            }
+                        return { erro:true, msg:resultStatus.msg     }
 
                 }
          }else{
@@ -73,7 +76,7 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
                     })
                 .where(eq(clientes.codigo, codigoCliente ))
                  return { erro:true, msg:'nenhum banco de dados disponivel para backup!'    }
- 
+                    
          }
 
        zipBackup(zipPath, databases,id)
