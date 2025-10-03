@@ -43,17 +43,21 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
 
     try{
          if( databases.length > 0 ){
-             for( const  database  of databases ){
+            let resultStatus 
+            for( const  database  of databases ){
                 
-                await dumpDatabase(config, database, id ).then(result => {
+                resultStatus = await dumpDatabase(config, database, id ).then(result => {
                             console.log(result);
                         }).catch(err => {
                             console.error(err);
-                 return { erro:true, msg: `erro ao tentar  executar o dump ${err}`  }
+                         return { erro:true, msg: `erro ao tentar  executar o dump ${err}`  }
 
                     });
                 }
-                
+                if( resultStatus && resultStatus.erro){
+                 return { erro:true, msg:resultStatus.msg     }
+
+                }
          }else{
                     await db.update(clientes)
              .set(
