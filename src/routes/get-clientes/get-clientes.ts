@@ -19,6 +19,7 @@ export const getClientes : FastifyPluginAsyncZod= async (server)=>{
                       }),
              querystring: z.object({
               search: z.string().optional(),
+              acesso: z.enum(['A', 'L', 'B']).optional(),,
               efetuar_backup: z.enum([ 'S','N']).optional(),
               orderBy: z.enum(['codigo', 'nomeFantasia','razaoSocial', 'efetuar_backup','data_ultimo_backup']).optional().default('codigo'),
               groupBy: z.enum(['codigo', 'ip', 'host']).default('codigo'),
@@ -32,7 +33,7 @@ export const getClientes : FastifyPluginAsyncZod= async (server)=>{
        
        
 
-        const { orderBy, ativo,    search, groupBy, host, efetuar_backup } = request.query
+        const { orderBy, ativo, acesso,   search, groupBy, host, efetuar_backup } = request.query
         
         const conditions:SQL[] =[]; 
        
@@ -57,7 +58,10 @@ export const getClientes : FastifyPluginAsyncZod= async (server)=>{
         if( ativo){
             conditions.push(eq(clientes.ativo, ativo));
         }
-    
+
+        if(acesso){
+            conditions.push(eq(clientes.acesso, acesso));
+        }
         if (efetuar_backup) {
             conditions.push(eq(clientes.efetuar_backup, efetuar_backup));
         }
