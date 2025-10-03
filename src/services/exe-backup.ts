@@ -45,7 +45,9 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
     try{
          if( databases.length > 0 ){
         
-                await db.update(clientes) .set(  {  status_backup: 'em-andamento',  msg_backup:`backup do dia ${data} ${hora} em andamento`  })
+                await db.update(clientes)
+                .set(  {  status_backup: 'em-andamento',  msg_backup:`backup do dia ${data} ${hora} em andamento`  }).
+                where(eq(clientes.codigo, codigoCliente))
         
         
             let resultStatus 
