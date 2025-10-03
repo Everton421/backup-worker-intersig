@@ -55,6 +55,12 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
                     });
                 }
                 if( resultStatus && resultStatus.erro){
+            await db.update(clientes)
+             .set(
+                { status_backup: 'erro',  
+                    msg_backup: resultStatus.msg 
+                    })
+                .where(eq(clientes.codigo, codigoCliente ))
                  return { erro:true, msg:resultStatus.msg     }
 
                 }
