@@ -19,7 +19,7 @@ export const getClientes : FastifyPluginAsyncZod= async (server)=>{
                       }),
              querystring: z.object({
               search: z.string().optional(),
-              acesso: z.enum(['A', 'L', 'B']).optional(),,
+              acesso: z.enum(['A', 'L', 'B']).optional(),
               efetuar_backup: z.enum([ 'S','N']).optional(),
               orderBy: z.enum(['codigo', 'nomeFantasia','razaoSocial', 'efetuar_backup','data_ultimo_backup']).optional().default('codigo'),
               groupBy: z.enum(['codigo', 'ip', 'host']).default('codigo'),
