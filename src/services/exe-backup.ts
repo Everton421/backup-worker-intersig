@@ -26,6 +26,7 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
 
         const dateService = dateHook();
         const {  data, hora} = dateService.getDataHora()
+         
 
  //const __filename = fileURLToPath("file:///C:/Users/usuario/Desktop/apps/api-backup/src/services/exec-backup.ts");
  //const  dirnameServices = path.dirname(__dirname);
@@ -43,6 +44,10 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
 
     try{
          if( databases.length > 0 ){
+        
+                await db.update(clientes) .set(  {  status_backup: 'em-andamento',  msg_backup:`backup do dia ${data} ${hora} em andamento`  })
+        
+        
             let resultStatus 
             for( const  database  of databases ){
                 
@@ -80,16 +85,14 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
          }
 
        zipBackup(zipPath, databases,id)
-    .then(() =>  {    return { erro:false, msg: `Backup realizado com sucesso!` }})
-    .catch( async (err )=> {
-              await db.update(clientes)
-             .set(
-                { 
-                    status_backup: 'erro',  
-                    msg_backup:"erro ao tentar  executar o zip dos arquivos"
-                    })
-        return { erro:true, msg:`erro ao tentar  executar o zip dos arquivos ${err}`   }
-        } );
+            .then(() =>  {    return { erro:false, msg: `Backup realizado com sucesso!` }})
+            .catch( async (err )=> {
+             
+                await db.update(clientes) .set(  {  status_backup: 'erro',  msg_backup:"erro ao tentar  executar o zip dos arquivos"  })
+             
+                    return { erro:true, msg:`erro ao tentar  executar o zip dos arquivos ${err}`   }
+             
+                } );
 
              for( const  database  of databases ){
                  limparArquivosSql(database, id)
