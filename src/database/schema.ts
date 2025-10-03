@@ -98,7 +98,6 @@ export const clientes = mysqlTable("clientes", {
 
  export const users = mysqlTable('users',{
     id: int().autoincrement().notNull(),
-    nome_user: varchar({length:255}).default('NULL'),
     email_user: varchar({length:255}).default('NULL'),
     senha_user: varchar({length:255}).default('NULL'),
     type: varchar({length:255}).default('NULL'),

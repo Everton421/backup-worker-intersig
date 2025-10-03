@@ -44,7 +44,7 @@ export const putUser: FastifyPluginAsyncZod = async (server) => {
          const hasPassword = await hash(senha)
  
          const resultUpdate = await db.update(users)
-             .set({ email_user: email, senha_user: hasPassword, nome_user: nome })
+             .set({ email_user: email, senha_user: hasPassword, user_name: nome })
              .where(eq(users.id, Number(id)))
  
          if (resultUpdate.length > 0 && resultUpdate[0].affectedRows > 0) {

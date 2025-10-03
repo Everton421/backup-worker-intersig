@@ -38,7 +38,7 @@ export const postUser: FastifyPluginAsyncZod = async (server) => {
         const verifyuser = await db.select().from(users).where(eq(users.email_user, email))
         if (verifyuser.length > 0) return reply.status(400).send({ msg: "Já existe um usuario com este email" })
         const hasPassword = await hash(senha)
-        const resultInsert = await db.insert(users).values({ email_user: email, senha_user: hasPassword, user_name: nome, type: 'suport', nome_user: nome })
+        const resultInsert = await db.insert(users).values({ email_user: email, senha_user: hasPassword, user_name: nome, type: 'suport'  })
 
         console.log(resultInsert)
 

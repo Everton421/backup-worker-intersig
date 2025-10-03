@@ -41,7 +41,7 @@ export const loginRoute : FastifyPluginAsyncZod = async ( server )=> {
                 }
 
                 const token = jwt.sign(
-                    { user_name: user.nome_user, type: user.type },
+                    { user_name: user.user_name, type: user.type },
                     process.env.JWT_SECRET
                 )
                 return reply.status(200).send({ token })
