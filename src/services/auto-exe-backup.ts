@@ -177,7 +177,15 @@ const scheduledBackups: Map<number, any> = new Map();
                                         });
                                         await execBackup(Number(codigo), config, databases, String(nomeBanco));
                                     }
-                                }
+                                }else{
+                                       await db.update(clientes)
+                                        .set(
+                                            { 
+                                                status_backup: 'pendente',  
+                                                msg_backup:"Erro ao tentar se conectar com o host"
+                                                })
+                                            .where(eq(clientes.codigo, clientConfig.codigo ))
+                                      }
                                 } catch (error) {
                                     console.error(`Erro ao executar o backup para ${nomeFantasia}:`, error);
                                 }

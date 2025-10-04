@@ -45,7 +45,7 @@ export const executarBackup: FastifyPluginAsyncZod = async (server) => {
                 if (selectedClientBackup[0].efetuar_backup && selectedClientBackup[0].efetuar_backup == 'S') {
 
                     const dataClient = selectedClientBackup[0]
-                    const { host, usuarioMysql, senhaMysql, portaMysql, nomeBanco } = dataClient;
+                    const { host, usuarioMysql, senhaMysql, portaMysql, nomeBanco, codigo } = dataClient;
                     const conn = await createClientPoolConnection(host, senhaMysql, usuarioMysql, String(portaMysql));
 
                     if (conn !== null) {
@@ -88,7 +88,11 @@ export const executarBackup: FastifyPluginAsyncZod = async (server) => {
                                 conn.release(); // Libera a conexão de volta ao pool
                             }
                         }
-                    }
+                    }else{
+                              await db.update(clientes)
+                               .set(  { status_backup: 'pendente',  msg_backup:"Erro ao tentar se conectar com o host" })
+                               .where(eq(clientes.codigo, codigo ))
+                             }
                 } else {
                     reply.status(401).send({ msg: `o cliente nao esta autorizado para executar backup` })
                 }
