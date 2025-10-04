@@ -26,7 +26,7 @@ export const getUserById : FastifyPluginAsyncZod = async ( server ) =>{
                         z.object(
                             {      id: z.number(),
                                   email_user:z.string().nullable(),
-                                  nome_user: z.string().nullable(),
+                                  user_name: z.string().nullable(),
 
                            })
                      
@@ -36,7 +36,7 @@ export const getUserById : FastifyPluginAsyncZod = async ( server ) =>{
          }
      }, async  (request , reply )=>{
         const { id } = request.params
-        const usuario = await db.select({ id: users.id,nome_user: users.nome_user, email_user: users.email_user }).from(users).where( eq( users.id, Number(id)))
+        const usuario = await db.select({ id: users.id,user_name: users.user_name, email_user: users.email_user }).from(users).where( eq( users.id, Number(id)))
          if(usuario.length === 0 ){
              return reply.status(400)
          }
