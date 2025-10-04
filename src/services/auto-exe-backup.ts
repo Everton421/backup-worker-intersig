@@ -10,9 +10,11 @@ import { randomUUID } from 'node:crypto';
 import { db } from '../database/client.ts';
 import { clientes } from '../database/schema.ts';
 import { eq, sql } from 'drizzle-orm';
-import cron from 'node-cron'
-import { createClientPoolConnection } from '../database/mysql-create-pool.ts';
+import cron  from 'node-cron'
+import  CronJob   from 'node-cron'
 
+import { createClientPoolConnection } from '../database/mysql-create-pool.ts';
+ 
     export type mysqlConfig = {
         host:string,
         porta:string,
@@ -110,6 +112,8 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
     return minutes
   }
 
+
+ 
 export async function mainTask() {
     // Agendar a tarefa principal para rodar às 5:00 AM todos os dias
     cron.schedule('0 5 * * *', async () => {
@@ -186,5 +190,5 @@ export async function mainTask() {
         console.log("Tarefa principal finalizada.");
     });
 
-    console.log("Tarefa principal agendada para rodar às 5:00 AM todos os dias.");
+    console.log("Tarefa principal agendada  ");
 }
