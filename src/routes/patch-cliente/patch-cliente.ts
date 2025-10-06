@@ -63,7 +63,7 @@ export const pathCliente:FastifyPluginAsyncZod = async (server )=>{
 
                  const validateClient = await db.select().from(clientes).where(eq(clientes.codigo, Number(codigo)))
 
-                 if(validateClient.length === 0 ){
+                 if(validateClient.length === 0 ){-
                     console.log("Nao foir encontrado cliente codigo:", codigo)
                     reply.status(400);
                  }
