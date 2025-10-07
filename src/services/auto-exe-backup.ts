@@ -34,9 +34,15 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
         const {  data, hora} = dateService.getDataHora()
 
   const __dirname = dirname(fileURLToPath(import.meta.url))
+       let zipPath = path.resolve(__dirname,'../../backups', `Bkp-${databaseName}_${data}_${hora}.zip`)
  
- 
-  const zipPath = path.resolve(__dirname,'../../backups', `Bkp-${databaseName}_${data}_${hora}.zip`)
+   if( process.env.PATH_BACKUPS){
+             let folder =process.env.PATH_BACKUPS
+                 if( fs.existsSync(folder)){
+                   zipPath =  path.resolve(folder , `Bkp-${databaseName}_${data}_${hora}.zip`)
+                 }
+             }
+//  const zipPath = path.resolve(__dirname,'../../backups', `Bkp-${databaseName}_${data}_${hora}.zip`)
 
     try{
          if( databases.length > 0 ){
