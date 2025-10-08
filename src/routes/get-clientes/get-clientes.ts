@@ -21,7 +21,7 @@ export const getClientes : FastifyPluginAsyncZod= async (server)=>{
               search: z.string().optional(),
               acesso: z.enum(['A', 'L', 'B']).optional(),
               efetuar_backup: z.enum([ 'S','N']).optional(),
-              orderBy: z.enum(['codigo', 'nomeFantasia','razaoSocial', 'efetuar_backup','data_ultimo_backup']).optional().default('codigo'),
+              orderBy: z.enum(['codigo', 'nomeFantasia','razaoSocial', 'efetuar_backup','data_ultimo_backup', 'hora_agenda_backup']).optional().default('codigo'),
               groupBy: z.enum(['codigo', 'ip', 'host']).default('codigo'),
               host: z.string().optional(),
               ativo: z.enum(['S','N']).optional().default('S'),
@@ -66,7 +66,7 @@ export const getClientes : FastifyPluginAsyncZod= async (server)=>{
             conditions.push(eq(clientes.efetuar_backup, efetuar_backup));
         }
 
-      
+       
             
       const clients = await 
         db.select()
