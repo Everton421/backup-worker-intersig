@@ -21,7 +21,7 @@ import { createDirectory } from '../utils/create-directory.ts';
 
  
 
-export async function  execBackup (codigoCliente:number, config:mysqlConfig, databases:string[], databaseName:string, pathZip:string ){
+export async function  execBackup (codigoCliente:number, config:mysqlConfig, databases:string[], databaseName:string, pathZip?:string ){
 
         const id = randomUUID();
 
@@ -33,7 +33,16 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
           if( !fs.existsSync(pathBackups)){
                 createDirectory(pathBackups);
             }
-       let pathzipComplete = path.resolve(pathBackups,pathZip)
+
+            let pastaClient 
+
+            if(pathZip){
+                pastaClient = pathZip
+            }else{
+                pastaClient = databaseName
+            }
+
+            let pathzipComplete = path.resolve(pathBackups,pastaClient)
 
                     
  //const __filename = fileURLToPath("file:///C:/Users/usuario/Desktop/apps/api-backup/src/services/exec-backup.ts");
