@@ -14,6 +14,7 @@ import cron  from 'node-cron'
 import  CronJob   from 'node-cron'
 
 import { createClientPoolConnection } from '../database/mysql-create-pool.ts';
+import { execBackup } from './exe-backup.ts';
  
     export type mysqlConfig = {
         host:string,
@@ -25,91 +26,6 @@ import { createClientPoolConnection } from '../database/mysql-create-pool.ts';
 
 type resultDatabase =  { database_name: string } 
  
-
-export async function  execBackup (codigoCliente:number, config:mysqlConfig, databases:string[], databaseName:string){
-
-        const id = randomUUID();
-
-        const dateService = dateHook();
-        const {  data, hora} = dateService.getDataHora()
-
-  const __dirname = dirname(fileURLToPath(import.meta.url))
-       let zipPath = path.resolve(__dirname,'../../backups', `Bkp-${databaseName}_${data}_${hora}.zip`)
- 
-   if( process.env.PATH_BACKUPS){
-             let folder =process.env.PATH_BACKUPS
-                 if( fs.existsSync(folder)){
-                   zipPath =  path.resolve(folder , `Bkp-${databaseName}_${data}_${hora}.zip`)
-                 }
-             }
-//  const zipPath = path.resolve(__dirname,'../../backups', `Bkp-${databaseName}_${data}_${hora}.zip`)
-
-    try{
-         if( databases.length > 0 ){
-               await db.update(clientes)
-                            .set(  {  status_backup: 'em-andamento',  msg_backup:`backup do dia ${data} ${hora} em andamento`  }).
-                            where(eq(clientes.codigo, codigoCliente))
-             for( const  database  of databases ){
-                
-                await dumpDatabase(config, database, id ).then(result => {
-                            console.log(result);
-                        }).catch(err => {
-                            console.error(err);
-                 return { erro:true, msg: `erro ao tentar  executar o dump ${err}`  }
-
-                    });
-                }
-            
-
-         }else{
-                    await db.update(clientes)
-             .set(
-                { 
-                    status_backup: 'erro',  
-                    msg_backup:"nenhum banco de dados disponivel para backup, verifique o nome do banco de dados do cliente"
-                    })
-                .where(eq(clientes.codigo, codigoCliente ))
-                 return { erro:true, msg:'nenhum banco de dados disponivel para backup!'    }
- 
-         }
-
-       zipBackup(zipPath,databases, id )
-    .then(() =>  {    return { erro:false, msg: `Backup realizado com sucesso!` }})
-    .catch( async (err )=> {
-              await db.update(clientes)
-             .set(
-                { 
-                    status_backup: 'erro',  
-                    msg_backup:"erro ao tentar  executar o zip dos arquivos"
-                    })
-        return { erro:true, msg:`erro ao tentar  executar o zip dos arquivos ${err}`   }
-        } );
-
-             for( const  database  of databases ){
-                 limparArquivosSql(database, id)
-            }
-       
-
-             await db.update(clientes)
-             .set(
-                { 
-                  data_ultimo_backup: sql`NOW()`,
-                  arquivoMaisRecente: `Bkp-${databaseName}_${data}_${hora}.zip`, 
-                    status_backup: 'finalizado',  
-                    bancos_backup: String(databases), 
-                    msg_backup: ` backup executado com sucesso arquivo: Bkp-${databaseName}_${data}_${hora}.zip `
-                })
-                .where(eq(clientes.codigo, codigoCliente ))
-    }catch(e){
-                 await db.update(clientes).set( { status_backup: 'erro',  
-                    msg_backup:"erro ao tentar  executar o zip dos arquivos"  })   
-
-        return { erro:true, msg: ` erro ao tentar executar o backup ${e} `  }
-    }
-
-
-
-}
 
   function formatHours(stringHour: string) {
     const horaFormatada = new Date('2023-01-01 ' + stringHour).toLocaleTimeString('pt-br', { hour: '2-digit'  })
@@ -133,7 +49,7 @@ const scheduledBackups: Map<number, any> = new Map();
 
             if (resultClientExecBackup.length > 0) {
                 for (const clientConfig of resultClientExecBackup) {
-                    const { codigo, nomeFantasia, hora_agenda_backup, host, portaMysql, senhaMysql, usuarioMysql, nomeBanco } = clientConfig;
+                    const { codigo, nomeFantasia, hora_agenda_backup, host, portaMysql, senhaMysql, usuarioMysql, nomeBanco , caminhoBkp} = clientConfig;
 
                     // Cancelar o agendamento existente, se houver
                     if (scheduledBackups.has(codigo)) {
@@ -184,7 +100,20 @@ const scheduledBackups: Map<number, any> = new Map();
                                         resultDatabases.forEach((db) => {
                                             databases.push(db.database_name);
                                         });
-                                        await execBackup(Number(codigo), config, databases, String(nomeBanco));
+
+                                          let pathZip 
+                                        if(caminhoBkp){
+                                              pathZip = caminhoBkp
+                                        }else{
+                                            if(process.env.PATH_BACKUPS){
+                                                pathZip = process.env.PATH_BACKUPS
+                                            }else{
+                                                 pathZip = path.resolve(__dirname,'../../backups')
+                                            }
+                                        }
+                                      
+                                   
+                                        await execBackup(Number(codigo), config, databases, String(nomeBanco), pathZip  );
                                     }
                                 }else{
                                        await db.update(clientes)
@@ -221,3 +150,90 @@ const scheduledBackups: Map<number, any> = new Map();
 
     console.log("Tarefa principal agendada  ");
 }
+
+
+/// old function
+/*
+export async function  execBackup (codigoCliente:number, config:mysqlConfig, databases:string[], databaseName:string){
+
+        const id = randomUUID();
+
+        const dateService = dateHook();
+        const {  data, hora} = dateService.getDataHora()
+
+  const __dirname = dirname(fileURLToPath(import.meta.url))
+       let zipPath = path.resolve(__dirname,'../../backups', `Bkp-${databaseName}_${data}_${hora}.zip`)
+ 
+   if( process.env.PATH_BACKUPS){
+             let folder =process.env.PATH_BACKUPS
+                 if( fs.existsSync(folder)){
+                   zipPath =  path.resolve(folder , `Bkp-${databaseName}_${data}_${hora}.zip`)
+                 }
+             }
+//  const zipPath = path.resolve(__dirname,'../../backups', `Bkp-${databaseName}_${data}_${hora}.zip`)
+
+    try{
+         if( databases.length > 0 ){
+               await db.update(clientes)
+                            .set(  {  status_backup: 'em-andamento',  msg_backup:`backup do dia ${data} ${hora} em andamento`  }).
+                            where(eq(clientes.codigo, codigoCliente))
+             for( const  database  of databases ){
+                
+                await dumpDatabase(config, database, id ).then(result => {
+                            console.log(result);
+                        }).catch(err => {
+                            console.error(err);
+                 return { erro:true, msg: `erro ao tentar  executar o dump ${err}`  }
+
+                    });
+                }
+
+         }else{
+                    await db.update(clientes)
+             .set(
+                { 
+                    status_backup: 'erro',  
+                    msg_backup:"nenhum banco de dados disponivel para backup, verifique o nome do banco de dados do cliente"
+                    })
+                .where(eq(clientes.codigo, codigoCliente ))
+                 return { erro:true, msg:'nenhum banco de dados disponivel para backup!'    }
+ 
+         }
+
+       zipBackup(zipPath,databases, id )
+    .then(() =>  {    return { erro:false, msg: `Backup realizado com sucesso!` }})
+    .catch( async (err )=> {
+              await db.update(clientes)
+             .set(
+                { 
+                    status_backup: 'erro',  
+                    msg_backup:"erro ao tentar  executar o zip dos arquivos"
+                    })
+        return { erro:true, msg:`erro ao tentar  executar o zip dos arquivos ${err}`   }
+        } );
+
+             for( const  database  of databases ){
+                 limparArquivosSql(database, id)
+            }
+       
+
+             await db.update(clientes)
+             .set(
+                { 
+                  data_ultimo_backup: sql`NOW()`,
+                  arquivoMaisRecente: `Bkp-${databaseName}_${data}_${hora}.zip`, 
+                    status_backup: 'finalizado',  
+                    bancos_backup: String(databases), 
+                    msg_backup: ` backup executado com sucesso arquivo: Bkp-${databaseName}_${data}_${hora}.zip `
+                })
+                .where(eq(clientes.codigo, codigoCliente ))
+    }catch(e){
+                 await db.update(clientes).set( { status_backup: 'erro',  
+                    msg_backup:"erro ao tentar  executar o zip dos arquivos"  })   
+
+        return { erro:true, msg: ` erro ao tentar executar o backup ${e} `  }
+    }
+
+
+
+}*/

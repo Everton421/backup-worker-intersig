@@ -7,6 +7,7 @@ import { execBackup } from "../../services/exe-backup.ts";
 import { createClientPoolConnection } from "../../database/mysql-create-pool.ts";
 import { checkRequest } from "../../hooks/check-request-jwt.ts";
 import { checkUser } from "../../hooks/check-user-jwt.ts";
+import path, { dirname } from 'path'
 
 
 type resultDatabase = { database_name: string }
@@ -45,7 +46,7 @@ export const executarBackup: FastifyPluginAsyncZod = async (server) => {
                 if (selectedClientBackup[0].efetuar_backup && selectedClientBackup[0].efetuar_backup == 'S') {
 
                     const dataClient = selectedClientBackup[0]
-                    const { host, usuarioMysql, senhaMysql, portaMysql, nomeBanco, codigo } = dataClient;
+                    const { host, usuarioMysql, senhaMysql, portaMysql, nomeBanco, codigo , caminhoBkp} = dataClient;
                     const conn = await createClientPoolConnection(host, senhaMysql, usuarioMysql, String(portaMysql));
 
                     if (conn !== null) {
@@ -76,7 +77,20 @@ export const executarBackup: FastifyPluginAsyncZod = async (server) => {
                                     senha: dataClient.senhaMysql,
                                     usuario: dataClient.usuarioMysql
                                 }
-                                await execBackup(Number(codigo), config, databases, String(nomeBanco))
+
+                                    let pathZip 
+                                         if(caminhoBkp){
+                                               pathZip = caminhoBkp
+                                         }else{
+                                             if(process.env.PATH_BACKUPS){
+                                                 pathZip = process.env.PATH_BACKUPS
+                                             }else{
+                                                  pathZip = path.resolve(__dirname,'../../backups')
+                                             }
+                                         }
+                                       
+                                    
+                                         await execBackup(Number(codigo), config, databases, String(nomeBanco), pathZip  );
 
                             }
 

@@ -10,6 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { db } from '../database/client.ts';
 import { clientes } from '../database/schema.ts';
 import { eq, sql } from 'drizzle-orm';
+import { createDirectory } from '../utils/create-directory.ts';
     export type mysqlConfig = {
         host:string,
         porta:string,
@@ -20,27 +21,34 @@ import { eq, sql } from 'drizzle-orm';
 
  
 
-export async function  execBackup (codigoCliente:number, config:mysqlConfig, databases:string[], databaseName:string){
+export async function  execBackup (codigoCliente:number, config:mysqlConfig, databases:string[], databaseName:string, pathZip:string ){
 
         const id = randomUUID();
 
         const dateService = dateHook();
         const {  data, hora} = dateService.getDataHora()
          
+        let pathBackups = 'C:/backups-api'
 
+          if( !fs.existsSync(pathBackups)){
+                createDirectory(pathBackups);
+            }
+       let pathzipComplete = path.resolve(pathBackups,pathZip)
+
+                    
  //const __filename = fileURLToPath("file:///C:/Users/usuario/Desktop/apps/api-backup/src/services/exec-backup.ts");
  //const  dirnameServices = path.dirname(__dirname);
  const __dirname = dirname(fileURLToPath(import.meta.url))
        let zipPath = path.resolve(__dirname,'../../backups', `Bkp-${databaseName}_${data}_${hora}.zip`)
+            
 
-        if( process.env.PATH_BACKUPS){
-            let folder =process.env.PATH_BACKUPS
-                if( fs.existsSync(folder)){
-                  zipPath =  path.resolve(folder , `Bkp-${databaseName}_${data}_${hora}.zip`)
+          if( fs.existsSync(pathzipComplete)){
+                  zipPath =  path.resolve(pathzipComplete , `Bkp-${databaseName}_${data}_${hora}.zip`)
+            }else{
+                createDirectory(pathzipComplete);
+                  zipPath =  path.resolve(pathzipComplete , `Bkp-${databaseName}_${data}_${hora}.zip`)
+                 
                 }
-            }
-
-  
 
     try{
          if( databases.length > 0 ){
@@ -63,17 +71,14 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
                 }
                 if( resultStatus && resultStatus.erro){
                     await db.update(clientes)
-                    .set(
-                        { status_backup: 'erro',  
-                            msg_backup: resultStatus.msg 
-                            })
-                        .where(eq(clientes.codigo, codigoCliente ))
+                    .set( { status_backup: 'erro',    msg_backup: resultStatus.msg   })
+                      .where(eq(clientes.codigo, codigoCliente ))
+
                           for( const  database  of databases ){
                             limparArquivosSql(database, id)
                             }
                         return { erro:true, msg:resultStatus.msg     }
-
-                }
+                 }
          }else{
                     await db.update(clientes)
              .set(
@@ -98,7 +103,7 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
 
              for( const  database  of databases ){
                  limparArquivosSql(database, id)
-            }
+              }
        
 
              await db.update(clientes)
@@ -113,7 +118,7 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
                 .where(eq(clientes.codigo, codigoCliente ))
     }catch(e){
                  await db.update(clientes).set( { status_backup: 'erro',  
-                    msg_backup:"erro ao tentar  executar o zip dos arquivos"  })   
+                    msg_backup: `erro ao tentar  executar o zip dos arquivos ${e}`  })   
 
         return { erro:true, msg: ` erro ao tentar executar o backup ${e} `  }
     }
