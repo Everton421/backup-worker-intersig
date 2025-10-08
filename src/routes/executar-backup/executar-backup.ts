@@ -78,19 +78,13 @@ export const executarBackup: FastifyPluginAsyncZod = async (server) => {
                                     usuario: dataClient.usuarioMysql
                                 }
 
-                                    let pathZip 
-                                         if(caminhoBkp){
-                                               pathZip = caminhoBkp
-                                         }else{
-                                             if(process.env.PATH_BACKUPS){
-                                                 pathZip = process.env.PATH_BACKUPS
-                                             }else{
-                                                  pathZip = path.resolve(__dirname,'../../backups')
-                                             }
-                                         }
+                                    let pastaClient = nomeBanco || '/'  
+                                        if( caminhoBkp){
+                                            pastaClient =caminhoBkp 
+                                        }
                                        
                                     
-                                         await execBackup(Number(codigo), config, databases, String(nomeBanco), pathZip  );
+                                         await execBackup(Number(codigo), config, databases, String(nomeBanco), pastaClient  );
 
                             }
 
