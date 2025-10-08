@@ -1,7 +1,7 @@
 import { type FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { db } from "../../database/client.ts";
 import { clientes, efetuarBackup } from "../../database/schema.ts";
-import { and, asc, eq, ilike, like, or, SQL, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, like, or, SQL, sql } from "drizzle-orm";
 import z from "zod";
 import { checkRequest } from "../../hooks/check-request-jwt.ts";
 import { checkUser } from "../../hooks/check-user-jwt.ts";
@@ -73,7 +73,7 @@ export const getClientes : FastifyPluginAsyncZod= async (server)=>{
          .from(clientes)
          .where( conditions.length > 0 ? and(...conditions) : undefined )  // Use 'and' and handle empty conditions
          .groupBy( clientes[groupBy] )
-         .orderBy( asc( clientes[orderBy]))
+         .orderBy( desc( clientes[orderBy]))
         
 
          if( clients.length > 0 ){
