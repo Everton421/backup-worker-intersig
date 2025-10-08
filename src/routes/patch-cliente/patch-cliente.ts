@@ -29,7 +29,8 @@ export const pathCliente:FastifyPluginAsyncZod = async (server )=>{
                 usuarioMysql: z.string().optional(),
                 acesso: z.enum([ 'L','B', 'A']).optional(),
                 host: z.string().optional(),
-                nomeBanco: z.string().optional()
+                nomeBanco: z.string().optional(),
+                caminhoBkp: z.string().optional(),
 
             }),
             response:{
@@ -41,7 +42,7 @@ export const pathCliente:FastifyPluginAsyncZod = async (server )=>{
     },
  async ( request, reply )=>{
 
-        const {portaMysql, acesso, efetuar_backup, hora_agenda_backup, host,nomeBanco,  senhaMysql,usuarioMysql  } = request.body
+        const {portaMysql, acesso, efetuar_backup, hora_agenda_backup, host,nomeBanco,  senhaMysql,usuarioMysql, caminhoBkp  } = request.body
         const {  codigo } = request.params
 
             let porta 
@@ -58,7 +59,8 @@ export const pathCliente:FastifyPluginAsyncZod = async (server )=>{
                     senhaMysql: senhaMysql,
                     usuarioMysql: usuarioMysql,
                     host:host,
-                    nomeBanco: nomeBanco
+                    nomeBanco: nomeBanco,
+                    caminhoBkp: caminhoBkp
                  }
 
                  const validateClient = await db.select().from(clientes).where(eq(clientes.codigo, Number(codigo)))
