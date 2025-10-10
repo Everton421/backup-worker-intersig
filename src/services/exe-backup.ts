@@ -3,7 +3,6 @@ import { execFile , spawn} from 'child_process';
 import path, { dirname } from 'path'
 import { fileURLToPath } from 'url'; // Importe para usar o import.meta.url
 import { dumpDatabase } from './dump-database.ts';
-import { zipBackup } from './zip.ts';
 import { limparArquivosSql } from './delete-arquivos.ts';
 import { dateHook } from '../hooks/data-hook.ts';
 import { randomUUID } from 'node:crypto';
@@ -11,6 +10,7 @@ import { db } from '../database/client.ts';
 import { clientes } from '../database/schema.ts';
 import { eq, sql } from 'drizzle-orm';
 import { createDirectory } from '../utils/create-directory.ts';
+import { zipFiles } from './zip.ts';
     export type mysqlConfig = {
         host:string,
         porta:string,
@@ -100,15 +100,12 @@ export async function  execBackup (codigoCliente:number, config:mysqlConfig, dat
                     
          }
 
-       zipBackup(zipPath, databases,id)
-            .then(() =>  {    return { erro:false, msg: `Backup realizado com sucesso!` }})
-            .catch( async (err )=> {
-             
-                await db.update(clientes) .set(  {  status_backup: 'erro',  msg_backup:"erro ao tentar  executar o zip dos arquivos"  })
-             
-                    return { erro:true, msg:`erro ao tentar  executar o zip dos arquivos ${err}`   }
-             
-                } );
+
+                const resultZipfiles = await zipFiles(zipPath, databases, id)
+
+                    if(resultZipfiles.erro){
+                      await db.update(clientes) .set(  {  status_backup: 'erro',  msg_backup:`erro ao tentar  executar o zip dos arquivos ${resultZipfiles.error || resultZipfiles.msg}`   })
+                    }
 
              for( const  database  of databases ){
                  limparArquivosSql(database, id)

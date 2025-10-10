@@ -1,17 +1,11 @@
-import fs from 'fs'
-import { execFile , spawn} from 'child_process';
-import path, { dirname } from 'path'
-import { fileURLToPath } from 'url'; // Importe para usar o import.meta.url
-import { dumpDatabase } from './dump-database.ts';
-import { zipBackup } from './zip.ts';
-import { limparArquivosSql } from './delete-arquivos.ts';
-import { dateHook } from '../hooks/data-hook.ts';
-import { randomUUID } from 'node:crypto';
+ 
+import path from 'path'
+
 import { db } from '../database/client.ts';
 import { clientes } from '../database/schema.ts';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import cron  from 'node-cron'
-import  CronJob   from 'node-cron'
+ 
 
 import { createClientPoolConnection } from '../database/mysql-create-pool.ts';
 import { execBackup } from './exe-backup.ts';
