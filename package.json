@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-   "type": "module",
-
+  "type": "module",
   "scripts": {
     "dev": "node --env-file .env --watch --experimental-strip-types src/server.ts",
     "start": "node --experimental-strip-types src/server.ts",
     "bkp": "tsx --env-file .env src/services/exe-backup.ts",
     "test:dir": " tsx --env-file .env src/__test__/test.ts",
-    "test:zip":" tsx --env-file .env src/__test__/zip_test.ts",
+    "test:zip": " tsx --env-file .env src/__test__/zip_test.ts",
+    "send:message": " tsx --env-file .env src/producer/send-backup-message.ts",
+    "receive:message":" tsx --env-file .env src/consumer/consume-backup-message.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -23,6 +24,7 @@
     "@scalar/fastify-api-reference": "^1.35.6",
     "@types/adm-zip": "^0.5.7",
     "adm-zip": "^0.5.16",
+    "amqplib": "^0.10.9",
     "argon2": "^0.44.0",
     "dotenv": "^17.2.2",
     "drizzle-orm": "^0.44.5",
@@ -37,6 +39,7 @@
     "zod": "^4.1.9"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.10.7",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.5.2",
     "drizzle-kit": "^0.31.4",
