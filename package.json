@@ -10,8 +10,8 @@
     "bkp": "tsx --env-file .env src/services/exe-backup.ts",
     "test:dir": " tsx --env-file .env src/__test__/test.ts",
     "test:zip": " tsx --env-file .env src/__test__/zip_test.ts",
-    "send:message": " tsx --env-file .env src/producer/send-backup-message.ts",
-    "receive:message":" tsx --env-file .env src/consumer/consume-backup-message.ts",
+    "send:message": " tsx --env-file .env src/utils/send-backup-message.ts",
+    "receive:message":" tsx --env-file .env src/utils/consume-backup-message.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -19,7 +19,15 @@ import { zipFiles } from './zip.ts';
     }
 
 
- 
+ /**
+  * 
+  * @param codigoCliente codigo do cliente a ser executado o backup. 
+  * @param config configurações do banco de dados a ser executado o backup.
+  * @param databases nome dos banco de dados a serem executado.
+  * @param databaseName nome em comun entre os bancos de dados. 
+  * @param pathZip caminho onde será salvo o arquivo de backup.
+  * @returns 
+  */
 
 export async function  execBackup (codigoCliente:number, config:mysqlConfig, databases:string[], databaseName:string, pathZip?:string ){
 

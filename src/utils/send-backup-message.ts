@@ -1,6 +1,17 @@
 import amqp from 'amqplib'
-
-
+ type mysqlConfig = {
+        host:string,
+        porta:string,
+        usuario:string,
+        senha:string
+    }
+  interface Messagebackup {
+     codigo: number, 
+     config: mysqlConfig,
+      databaseName:string ,
+      pathZip: string 
+      databases:string[] 
+}
 let rabbitMqUrl = 'amqp://localhost'
 
 if( process.env.RABBITMQ_URL){
@@ -9,7 +20,7 @@ if( process.env.RABBITMQ_URL){
 
 const queueName = 'backup_queue';
 
-async function sendBackupMessage( backupData:any ){
+export async function sendBackupMessage( backupData:Messagebackup ){
     try{
 
         const connection  = await amqp.connect( rabbitMqUrl);   
@@ -24,7 +35,7 @@ async function sendBackupMessage( backupData:any ){
                  }
             )
 
-            console.log("Mensagem de backup enviada para a fila:", backupData );
+            console.log("Mensagem de backup enviada para a fila "  );
 
             setTimeout(()=>{ 
                 connection.close();
@@ -36,6 +47,5 @@ async function sendBackupMessage( backupData:any ){
 }
 
 
-sendBackupMessage({codigo:2, banco:'meridional'})
-
+  
 

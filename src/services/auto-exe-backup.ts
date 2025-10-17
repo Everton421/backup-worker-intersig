@@ -8,7 +8,7 @@ import cron  from 'node-cron'
  
 
 import { createClientPoolConnection } from '../database/mysql-create-pool.ts';
-import { execBackup } from './exe-backup.ts';
+import { sendBackupMessage } from '../utils/send-backup-message.ts';
  
     export type mysqlConfig = {
         host:string,
@@ -49,7 +49,6 @@ const scheduledBackups: Map<number, any> = new Map();
                     if (scheduledBackups.has(codigo)) {
                         const job = scheduledBackups.get(codigo);
                         if (job) {
-                            console.log(`Cancelando agendamento antigo para ${nomeFantasia}`);
                             job.stop();
                         }
                         scheduledBackups.delete(codigo);
@@ -106,8 +105,9 @@ const scheduledBackups: Map<number, any> = new Map();
                                             }
                                         }
                                       
-                                   
-                                        await execBackup(Number(codigo), config, databases, String(nomeBanco), pathZip  );
+                                            sendBackupMessage({ codigo: Number(codigo), config: config, databases: databases  , databaseName:String(nomeBanco), pathZip:pathZip })
+                                        //await execBackup(Number(codigo), config, databases, String(nomeBanco), pathZip  );
+
                                     }
                                 }else{
                                        await db.update(clientes)
@@ -126,12 +126,11 @@ const scheduledBackups: Map<number, any> = new Map();
                             scheduledBackups.set(codigo, job);
                             job.start();
 
-                            console.log(`Backup agendado para ${nomeFantasia} às ${hourBackup}:${minutesBackup}`);
                         } else {
                             console.warn(`Cliente ${nomeFantasia} habilitado para backup, mas sem hora agendada. Ignorando.`);
                         }
                     }
-                
+                    console.log("agendamentos concluido")
             } else {
                 console.log("Nenhum cliente habilitado para backup encontrado.");
             }
@@ -144,90 +143,4 @@ const scheduledBackups: Map<number, any> = new Map();
 
     console.log("Tarefa principal agendada  ");
 }
-
-
-/// old function
-/*
-export async function  execBackup (codigoCliente:number, config:mysqlConfig, databases:string[], databaseName:string){
-
-        const id = randomUUID();
-
-        const dateService = dateHook();
-        const {  data, hora} = dateService.getDataHora()
-
-  const __dirname = dirname(fileURLToPath(import.meta.url))
-       let zipPath = path.resolve(__dirname,'../../backups', `Bkp-${databaseName}_${data}_${hora}.zip`)
  
-   if( process.env.PATH_BACKUPS){
-             let folder =process.env.PATH_BACKUPS
-                 if( fs.existsSync(folder)){
-                   zipPath =  path.resolve(folder , `Bkp-${databaseName}_${data}_${hora}.zip`)
-                 }
-             }
-//  const zipPath = path.resolve(__dirname,'../../backups', `Bkp-${databaseName}_${data}_${hora}.zip`)
-
-    try{
-         if( databases.length > 0 ){
-               await db.update(clientes)
-                            .set(  {  status_backup: 'em-andamento',  msg_backup:`backup do dia ${data} ${hora} em andamento`  }).
-                            where(eq(clientes.codigo, codigoCliente))
-             for( const  database  of databases ){
-                
-                await dumpDatabase(config, database, id ).then(result => {
-                            console.log(result);
-                        }).catch(err => {
-                            console.error(err);
-                 return { erro:true, msg: `erro ao tentar  executar o dump ${err}`  }
-
-                    });
-                }
-
-         }else{
-                    await db.update(clientes)
-             .set(
-                { 
-                    status_backup: 'erro',  
-                    msg_backup:"nenhum banco de dados disponivel para backup, verifique o nome do banco de dados do cliente"
-                    })
-                .where(eq(clientes.codigo, codigoCliente ))
-                 return { erro:true, msg:'nenhum banco de dados disponivel para backup!'    }
- 
-         }
-
-       zipBackup(zipPath,databases, id )
-    .then(() =>  {    return { erro:false, msg: `Backup realizado com sucesso!` }})
-    .catch( async (err )=> {
-              await db.update(clientes)
-             .set(
-                { 
-                    status_backup: 'erro',  
-                    msg_backup:"erro ao tentar  executar o zip dos arquivos"
-                    })
-        return { erro:true, msg:`erro ao tentar  executar o zip dos arquivos ${err}`   }
-        } );
-
-             for( const  database  of databases ){
-                 limparArquivosSql(database, id)
-            }
-       
-
-             await db.update(clientes)
-             .set(
-                { 
-                  data_ultimo_backup: sql`NOW()`,
-                  arquivoMaisRecente: `Bkp-${databaseName}_${data}_${hora}.zip`, 
-                    status_backup: 'finalizado',  
-                    bancos_backup: String(databases), 
-                    msg_backup: ` backup executado com sucesso arquivo: Bkp-${databaseName}_${data}_${hora}.zip `
-                })
-                .where(eq(clientes.codigo, codigoCliente ))
-    }catch(e){
-                 await db.update(clientes).set( { status_backup: 'erro',  
-                    msg_backup:"erro ao tentar  executar o zip dos arquivos"  })   
-
-        return { erro:true, msg: ` erro ao tentar executar o backup ${e} `  }
-    }
-
-
-
-}*/
