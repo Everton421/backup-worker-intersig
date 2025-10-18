@@ -36,7 +36,7 @@ module.exports = {
       exec_mode: "fork", // Use 'fork' para processos independentes
       watch: false,
       max_memory_restart: "500M", // Aumente a memória se os backups forem intensos
-      instances: 4, // Defina o número de workers que você deseja rodar
+      instances: 2, // Defina o número de workers que você deseja rodar
       autorestart: true,
       restart_delay: 5000,
       error_file: "logs/backup-worker-err.log",
