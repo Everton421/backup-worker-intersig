@@ -40,7 +40,6 @@ module.exports = {
         "--experimental-strip-types",
         "src/workers/worker.ts" // O arquivo do seu worker
       ],
-      env: process.env,
       exec_mode: "fork", // Use 'fork' para processos independentes
       watch: false,
       max_memory_restart: "500M", // Aumente a memória se os backups forem intensos
