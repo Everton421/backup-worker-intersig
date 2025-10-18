@@ -6,14 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "node --env-file .env --watch --experimental-strip-types src/server.ts",
-    "start": "node --experimental-strip-types src/server.ts",
-    "bkp": "tsx --env-file .env src/services/exe-backup.ts",
-    "test:dir": " tsx --env-file .env src/__test__/test.ts",
-    "test:zip": " tsx --env-file .env src/__test__/zip_test.ts",
-    "send:message": " tsx --env-file .env src/utils/send-backup-message.ts",
-    "receive:message":" tsx --env-file .env src/utils/consume-backup-message.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "start": "tsx --env-file .env --experimental-strip-types src/server.ts" 
+    },
   "keywords": [],
   "author": "",
   "license": "ISC",
