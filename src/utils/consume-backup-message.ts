@@ -28,6 +28,8 @@ export async function consumeBackupMessages() {
 
         channel.consume(queueName, async (msg) => {
             if (msg) {
+                
+                 
                 const receivedData = JSON.parse(msg.content.toString());
                 console.log(`[Worker ${process.pid}] Mensagem recebida:`, receivedData); // Adicionado PID
 

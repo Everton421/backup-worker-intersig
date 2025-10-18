@@ -9,6 +9,7 @@ import { consumeBackupMessages } from "./utils/consume-backup-message.ts";
     }
     
 mainTask()
-consumeBackupMessages()
+ 
+  consumeBackupMessages().catch(console.error);
   
     server.listen( { port: port, host: '0.0.0.0'  } ,()=>console.log(` Server is running port ${port} `))
