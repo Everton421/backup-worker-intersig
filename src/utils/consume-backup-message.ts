@@ -1,6 +1,5 @@
-// src/worker.ts
 import amqp from 'amqplib';
-import { execBackup } from '../services/exe-backup.ts'; 
+import { execBackup } from '../services/exe-backup.ts';  // Verifique o caminho correto
 
 let rabbitMqUrl = 'amqp://localhost';
 const queueName = 'backup_queue';
@@ -74,6 +73,3 @@ export async function consumeBackupMessages() {
         }, 5000);
     }
 }
-
-// Inicia o consumidor quando o script do worker é executado
-consumeBackupMessages().catch(console.error);

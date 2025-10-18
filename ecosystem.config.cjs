@@ -2,35 +2,46 @@
 module.exports = {
   apps: [
     {
-      name: "api-backup",
-      // O script principal agora é o executável CLI do tsx
-      script: "node_modules/tsx/dist/cli.cjs", // Use o caminho relativo correto ou absoluto
-
-      // O interpretador é o Node.js que vai executar o cli.js do tsx
+      name: "api-backup-server", // Nome da sua API principal, se houver
+      script: "node_modules/tsx/dist/cli.cjs",
       interpreter: "node",
-
-      // Os argumentos para o "script" (cli.js do tsx)
       args: [
-        "--env-file", // Argumento para o tsx
-        ".env",       // Valor do argumento --env-file
-        "--experimental-strip-types", // Outro argumento para o tsx
-        "src/server.ts" // O arquivo que o tsx deve processar, passado como argumento final para o tsx
+        "--env-file",
+        ".env",
+        "--experimental-strip-types",
+        "src/server.ts" // O arquivo que a API Fastify deve processar
       ],
-
-       env:  process.env, 
-       //{
-       // NODE_ENV: "development",
-        // Outras variáveis de ambiente
-     // },
+      env: process.env,
       exec_mode: "fork",
       watch: false,
       max_memory_restart: "200M",
-      instances: 1,
+      instances: 1, // A API geralmente precisa de apenas 1 instância, a menos que você tenha um load balancer
       autorestart: true,
       restart_delay: 5000,
-      error_file: "logs/api-backup-err.log",
-      out_file: "logs/api-backup-out.log",
+      error_file: "logs/api-backup-server-err.log",
+      out_file: "logs/api-backup-server-out.log",
       log_date_format: "YYYY-MM-DD HH:mm:ss"
     },
+    {
+      name: "backup-worker", // Nome do seu worker
+      script: "node_modules/tsx/dist/cli.cjs", // Usa o tsx para executar o worker
+      interpreter: "node",
+      args: [
+        "--env-file",
+        ".env",
+        "--experimental-strip-types",
+        "src/workers/worker.ts" // O arquivo do seu worker
+      ],
+      env: process.env,
+      exec_mode: "fork", // Use 'fork' para processos independentes
+      watch: false,
+      max_memory_restart: "500M", // Aumente a memória se os backups forem intensos
+      instances: 4, // Defina o número de workers que você deseja rodar
+      autorestart: true,
+      restart_delay: 5000,
+      error_file: "logs/backup-worker-err.log",
+      out_file: "logs/backup-worker-out.log",
+      log_date_format: "YYYY-MM-DD HH:mm:ss"
+    }
   ],
 };

@@ -1,3 +1,3 @@
 import { consumeBackupMessages } from "../utils/consume-backup-message.ts";
 
-consumeBackupMessages()
+consumeBackupMessages().catch(console.error);
