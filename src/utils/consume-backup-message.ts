@@ -41,12 +41,11 @@ export async function consumeBackupMessages() {
                     channel.ack(msg); // Confirma que a mensagem foi processada com sucesso
                 } catch (error) {
                     console.error(`[Worker ${process.pid}] Erro ao executar backup para ${databaseName}:`, error);
-                    // Se houver um erro, você pode rejeitar a mensagem para que ela retorne à fila (ou vá para uma dead-letter queue)
                     channel.reject(msg, false); // false = não requeue imediatamente, pode ser configurado para DLX
                 }
             }
         }, {
-            noAck: false
+            noAck: true
         });
 
         // Lidar com desconexões do RabbitMQ
@@ -68,7 +67,6 @@ export async function consumeBackupMessages() {
 
     } catch (error) {
         console.error(`[Worker ${process.pid}] Erro ao iniciar o consumidor de backup:`, error);
-        // Em caso de erro inicial de conexão, tente novamente após um tempo
         setTimeout(() => {
             console.log(`[Worker ${process.pid}] Tentando reiniciar o consumidor...`);
             consumeBackupMessages();
