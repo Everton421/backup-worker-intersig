@@ -84,7 +84,18 @@ const scheduledBackups: Map<number, any> = new Map();
                                 const conn = await createClientPoolConnection(host, senhaMysql, usuarioMysql, String(portaMysql));
 
                                 if (conn !== null) {
-                                    const [results] = await conn.query(`SELECT schema_name as database_name FROM information_schema.schemata WHERE schema_name LIKE '${nomeBanco}%';`) as [resultDatabase[], any];
+                                     const databasePublico = nomeBanco+'_publico';
+                                     const databaseVendas  = nomeBanco+'_vendas';
+                                     const databaseFinanceiro  = nomeBanco+'_financeiro';
+                                     const databaseEstoque  = nomeBanco+'_estoque';
+
+                                    const [results] = await conn.query(`SELECT schema_name as database_name FROM information_schema.schemata WHERE schema_name IN 
+                                        ( 
+                                        '${databasePublico}',
+                                        '${databaseVendas}',
+                                        '${databaseFinanceiro}',
+                                        '${databaseEstoque}',
+                                        ) ;`) as [resultDatabase[], any];
 
                                     const resultDatabases = results;
 
