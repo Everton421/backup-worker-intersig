@@ -35,7 +35,7 @@ type resultDatabase =  { database_name: string }
 const scheduledBackups: Map<number, any> = new Map();
 
  export async function mainTask() {
-    cron.schedule(' */1 * * * *', async () => {
+    cron.schedule(' 0 * * * *', async () => {
         console.log("Tarefa principal iniciada: Verificando clientes e agendando backups.");
 
         try {
