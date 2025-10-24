@@ -34,7 +34,27 @@ export async function consumeBackupMessages() {
                 console.log(`[Worker ${process.pid}] Mensagem recebida:`, receivedData); // Adicionado PID
 
                 const { codigo, config, databases, pathZip, databaseName } = receivedData;
-                
+                     if(!codigo){
+                           console.error(`[Worker ${process.pid}] Nao informado o codigo do cliente!` );
+                            channel.reject(msg, false); // false = não requeue imediatamente, pode ser configurado para DLX
+                      }
+                     if(!config){
+                           console.error(`[Worker ${process.pid}] Nao informado a configuracao de acesso ao banco de dados do cliente!` );
+                            channel.reject(msg, false); // false = não requeue imediatamente, pode ser configurado para DLX
+                     }
+                      if(!databases){
+                           console.error(`[Worker ${process.pid}] Nao informado o array com os nomes dos bancos de dados do cliente!` );
+                            channel.reject(msg, false); // false = não requeue imediatamente, pode ser configurado para DLX
+                     }
+                    if(!pathZip){
+                           console.error(`[Worker ${process.pid}] no informado o caminho onde será salvo o arquivo de backup!` );
+                            channel.reject(msg, false); // false = não requeue imediatamente, pode ser configurado para DLX
+                     }
+                     if(!databaseName){
+                           console.error(`[Worker ${process.pid}] no informado o nome do banco de dados do cliente!` );
+                            channel.reject(msg, false); // false = não requeue imediatamente, pode ser configurado para DLX
+                     }
+                     
                 try {
                     await execBackup(Number(codigo), config, databases, String(databaseName), pathZip);
                     console.log(`[Worker ${process.pid}] Backup concluído para:`, databaseName);
@@ -43,6 +63,7 @@ export async function consumeBackupMessages() {
                     console.error(`[Worker ${process.pid}] Erro ao executar backup para ${databaseName}:`, error);
                     channel.reject(msg, false); // false = não requeue imediatamente, pode ser configurado para DLX
                 }
+
             }
         }, {
             noAck: true
@@ -73,3 +94,4 @@ export async function consumeBackupMessages() {
         }, 5000);
     }
 }
+

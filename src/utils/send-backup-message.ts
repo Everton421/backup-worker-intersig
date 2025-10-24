@@ -6,12 +6,14 @@ import amqp from 'amqplib'
         senha:string
     }
   interface Messagebackup {
-     codigo: number, 
-     config: mysqlConfig,
+      codigo: number, 
+      config: mysqlConfig,
       databaseName:string ,
       pathZip: string 
       databases:string[] 
 }
+
+
 let rabbitMqUrl = 'amqp://localhost'
 
 if( process.env.RABBITMQ_URL){

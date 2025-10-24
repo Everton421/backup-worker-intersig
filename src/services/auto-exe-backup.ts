@@ -35,7 +35,7 @@ type resultDatabase =  { database_name: string }
 const scheduledBackups: Map<number, any> = new Map();
 
  export async function mainTask() {
-    cron.schedule(' 0 * * * *', async () => {
+    cron.schedule(' */1 * * * *', async () => {
         console.log("Tarefa principal iniciada: Verificando clientes e agendando backups.");
 
         try {
@@ -94,7 +94,7 @@ const scheduledBackups: Map<number, any> = new Map();
                                         '${databasePublico}',
                                         '${databaseVendas}',
                                         '${databaseFinanceiro}',
-                                        '${databaseEstoque}',
+                                        '${databaseEstoque}'
                                         ) ;`) as [resultDatabase[], any];
 
                                     const resultDatabases = results;
@@ -115,10 +115,7 @@ const scheduledBackups: Map<number, any> = new Map();
                                                  pathZip = path.resolve(__dirname,'../../backups')
                                             }
                                         }
-                                      
                                             sendBackupMessage({ codigo: Number(codigo), config: config, databases: databases  , databaseName:String(nomeBanco), pathZip:pathZip })
-                                        //await execBackup(Number(codigo), config, databases, String(nomeBanco), pathZip  );
-
                                     }
                                 }else{
                                        await db.update(clientes)
