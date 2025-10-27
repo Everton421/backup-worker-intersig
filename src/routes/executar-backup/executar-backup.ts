@@ -7,11 +7,9 @@ import { execBackup } from "../../services/exe-backup.ts";
 import { createClientPoolConnection } from "../../database/mysql-create-pool.ts";
 import { checkRequest } from "../../hooks/check-request-jwt.ts";
 import { checkUser } from "../../hooks/check-user-jwt.ts";
-import path, { dirname } from 'path'
 
 
 type resultDatabase = { database_name: string }
-
 
 export const executarBackup: FastifyPluginAsyncZod = async (server) => {
     server.post('/executar-backup/:codigo', {
@@ -33,9 +31,7 @@ export const executarBackup: FastifyPluginAsyncZod = async (server) => {
                 401: z.object({ msg: z.string(`o cliente nao esta autorizado para executar backup`) }),
                 400: z.object({ msg: z.string() }),
                 500: z.object({ msg: z.string() }),
-
             }
-
         }
     },
         async (request, reply) => {
@@ -46,7 +42,7 @@ export const executarBackup: FastifyPluginAsyncZod = async (server) => {
                 if (selectedClientBackup[0].efetuar_backup && selectedClientBackup[0].efetuar_backup == 'S') {
 
                     const dataClient = selectedClientBackup[0]
-                    const { host, usuarioMysql, senhaMysql, portaMysql, nomeBanco, codigo , caminhoBkp} = dataClient;
+                    const { host, usuarioMysql, senhaMysql, portaMysql, nomeBanco, codigo , caminhoBkp, nomeReduz } = dataClient;
                     const conn = await createClientPoolConnection(host, senhaMysql, usuarioMysql, String(portaMysql));
 
                     if (conn !== null) {
@@ -56,15 +52,22 @@ export const executarBackup: FastifyPluginAsyncZod = async (server) => {
 
                         try {
 
-                            const [results, fields] = await conn.query(`SELECT schema_name as database_name
-                                                    FROM information_schema.schemata
-                                                    WHERE schema_name LIKE '${nomeBanco}%';`)
+                          const databasePublico = nomeBanco+'_publico';
+                                                            const databaseVendas  = nomeBanco+'_vendas';
+                                                            const databaseFinanceiro  = nomeBanco+'_financeiro';
+                                                            const databaseEstoque  = nomeBanco+'_estoque';
+                        
+                                                            const [results] = await conn.query(`SELECT schema_name as database_name FROM information_schema.schemata WHERE schema_name IN 
+                                                                ( 
+                                                                '${databasePublico}',
+                                                                '${databaseVendas}',
+                                                                '${databaseFinanceiro}',
+                                                                '${databaseEstoque}'
+                                                                ) ;`) as [resultDatabase[], any];
 
                             const resultDatabases = results as resultDatabase[];
 
-
                             if (resultDatabases.length > 0) {
-
                                 const databases: string[] = []
                                 resultDatabases.forEach((db) => {
                                     databases.push(db.database_name)
@@ -78,11 +81,9 @@ export const executarBackup: FastifyPluginAsyncZod = async (server) => {
                                     usuario: dataClient.usuarioMysql
                                 }
 
+                                let backupFoder = caminhoBkp || nomeBanco || nomeReduz
                                    
-                                       
-                                    
-                                         await execBackup(Number(codigo), config, databases, String(nomeBanco), caminhoBkp  );
-
+                                         await execBackup(Number(codigo), config, databases, String(nomeBanco), backupFoder  );
                             }
 
                         } catch (e) {

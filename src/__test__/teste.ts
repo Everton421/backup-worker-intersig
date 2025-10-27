@@ -4,9 +4,9 @@ import { sendBackupMessage } from "../utils/send-backup-message.ts";
 
 type resultDatabase =  { database_name: string } 
                              
-                             const conn = await createClientPoolConnection('192.168.100.106', "Nileduz",'intersig', String(3306));
+                             const conn = await createClientPoolConnection('179.184.9.227', "Nileduz",'intersig', String(3110));
     if(conn){
-        const nomeBanco = 'ic';
+        const nomeBanco = 'space_eletro';
 
                                    const databasePublico = nomeBanco+'_publico';
                                      const databaseVendas  = nomeBanco+'_vendas';
