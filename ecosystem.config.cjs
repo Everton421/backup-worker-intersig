@@ -7,7 +7,6 @@ module.exports = {
       script: "node_modules/tsx/dist/cli.cjs", // Use o caminho relativo correto ou absoluto
       
         interpreter: "node",
-
         // Os argumentos para o "script" (cli.js do tsx)
         args: [
           "--env-file", // Argumento para o tsx
