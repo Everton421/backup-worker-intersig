@@ -90,7 +90,7 @@ export const clientes = mysqlTable("clientes", {
     bancos_backup: varchar("BANCOS_BACKUP"  ,{ length: 255 }).default('NULL'),
     status_backup: statusBackup.default('pendente'),
     efetuar_backup: efetuarBackup.default('N'), 
-    msg_backup: varchar("MSG_BACKUP", { length: 255 }).default('NULL'),
+    msg_backup: text("MSG_BACKUP").default('NULL'),
     },
 (table) => [
     unique("CNPJ").on(table.cnpj),

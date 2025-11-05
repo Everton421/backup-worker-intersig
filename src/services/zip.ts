@@ -33,6 +33,8 @@ export async function zipFiles(zipName: string, databases: string[], id: string)
         return { erro: true, msg: 'Nenhum arquivo encontrado para compactar.' };
     }
 
+
+    
     // Constrói os argumentos para o 7z.exe
     const args = ['a', '-tzip', zipName, ...filesToZip];
 

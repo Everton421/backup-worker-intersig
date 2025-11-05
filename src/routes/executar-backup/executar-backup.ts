@@ -47,23 +47,23 @@ export const executarBackup: FastifyPluginAsyncZod = async (server) => {
 
                     if (conn !== null) {
                         if (!host || !usuarioMysql || !senhaMysql || !portaMysql || !nomeBanco) {
-                            reply.status(400).send({ msg: "Verifique o cadastro cliente, um ou mais parametros não foram encontrados" })
+                           return reply.status(400).send({ msg: "Verifique o cadastro cliente, um ou mais parametros não foram encontrados" })
                         }
 
                         try {
 
-                          const databasePublico = nomeBanco+'_publico';
-                                                            const databaseVendas  = nomeBanco+'_vendas';
-                                                            const databaseFinanceiro  = nomeBanco+'_financeiro';
-                                                            const databaseEstoque  = nomeBanco+'_estoque';
-                        
-                                                            const [results] = await conn.query(`SELECT schema_name as database_name FROM information_schema.schemata WHERE schema_name IN 
-                                                                ( 
-                                                                '${databasePublico}',
-                                                                '${databaseVendas}',
-                                                                '${databaseFinanceiro}',
-                                                                '${databaseEstoque}'
-                                                                ) ;`) as [resultDatabase[], any];
+                                        const databasePublico = nomeBanco+'_publico';
+                                       const databaseVendas  = nomeBanco+'_vendas';
+                                       const databaseFinanceiro  = nomeBanco+'_financeiro';
+                                       const databaseEstoque  = nomeBanco+'_estoque';
+   
+                                       const [results] = await conn.query(`SELECT schema_name as database_name FROM information_schema.schemata WHERE schema_name IN 
+                                           ( 
+                                           '${databasePublico}',
+                                           '${databaseVendas}',
+                                           '${databaseFinanceiro}',
+                                           '${databaseEstoque}'
+                                           ) ;`) as [resultDatabase[], any];
 
                             const resultDatabases = results as resultDatabase[];
 
