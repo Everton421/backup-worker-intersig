@@ -11,6 +11,7 @@ import { clientes } from '../database/schema.ts';
 import { eq, sql } from 'drizzle-orm';
 import { createDirectory } from '../utils/create-directory.ts';
 import { zipFiles } from './zip.ts';
+import { delay } from '../utils/delay.ts';
 export type mysqlConfig = {
     host: string,
     porta: string,
@@ -18,7 +19,7 @@ export type mysqlConfig = {
     senha: string
 }
 
-
+ 
 /**
  * 
  * @param codigoCliente codigo do cliente a ser executado o backup. 
@@ -107,7 +108,8 @@ export async function execBackup(codigoCliente: number, config: mysqlConfig, dat
             return { erro: true, msg: 'nenhum banco de dados disponivel para backup!' }
         }
 
-
+            await delay(10000);
+            
         const resultZipfiles = await zipFiles(zipPath, databases, id)
 
         if (resultZipfiles.erro) {
