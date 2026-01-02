@@ -1,5 +1,5 @@
 import { server } from "./app.ts";
-import { mainTask } from "./services/auto-exe-backup.ts";
+import {  jobBackup } from "./jobs/backup-job.ts";
 import { consumeBackupMessages } from "./utils/consume-backup-message.ts";
 
 
@@ -8,7 +8,7 @@ import { consumeBackupMessages } from "./utils/consume-backup-message.ts";
           port = Number( process.env.PORT_API ) 
     }
     
-mainTask()
+    jobBackup()
  
   consumeBackupMessages().catch(console.error);
   

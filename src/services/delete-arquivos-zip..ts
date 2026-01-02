@@ -1,22 +1,49 @@
-import { db } from "../database/client.ts";
-import { clientes } from "../database/schema.ts";
+import { opendir } from "node:fs/promises";
+import fs from 'node:fs'
 
- const  arrClientes = await db.select().from(clientes)
+ /**
+  * 
+  * @param date data ultimo backup executado 
+  * @param directory diretorio onde estão os itens a ser validados
+  * @param interval intervalo de dias, ( Ex.: interval = 5 será verificado os arquivos com data de criação com 5 dias de antecedencia em relação a data do ultimo backup informada (date)  ) 
+ */
+ export async function deleteZipFiles( directory:string, date: string, interval:number ){
 
-  let data =  arrClientes[0].data_ultimo_backup as any
-  data = new Date(data);
- 
-  const dia = String( data.getDate()).padStart(2, '0');
-  const mes = String( data.getMonth()).padStart(2, '0')
-  const ano = String( data.getFullYear())
-  const ultDate = new Date( data ) ;
+  try {
 
-  const dataExc = Number(dia) - 5;
+    const folder = 'C:/backups-api' 
 
-//console.log(arrClientes[0])
+    const data = new Date(date)  ;
 
-//console.log(ano,'/', mes ,'/',dia ) 
-console.log(ano,'/', mes ,'/',dataExc ) 
+      data.setDate(data.getDate() - interval);
 
+        const fullDirectory = `${folder}/${directory}`
 
+      const dir = await opendir(fullDirectory) as any;
+      
 
+    for await (const dirent of dir){
+          await fs.stat( dirent.path  ,async ( err , stats )=>{
+            if( err ){
+                console.log(" ERRO: ",err)
+            }else{
+              console.log( dirent )  
+              console.log(`${new Date(stats.atime)} < ${data}`)  
+
+                  if( new Date(stats.atime) <   data    ){
+                         console.log(`${new Date(stats.atime)} < ${data}`)  
+                         console.log(" Excluindo  arquivo: " ,dirent.name ," ", stats.atime)
+                         console.log( dirent )  
+
+                          const   completePath = `${dirent.path}/${dirent.name}` 
+                          await fs.rm(completePath,{ force:true }, (err)=>{
+                              if (err) console.log("Erro ao tentar excluir arquivo ",err) 
+                          } )
+                  }
+              }
+          })
+      }
+  } catch (err) {
+    return { erro:true, msg:"Ocorreu um erro ao tentar excluir arquivo. ",err}
+  }
+ }
