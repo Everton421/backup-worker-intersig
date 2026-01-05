@@ -9,7 +9,7 @@ import { deleteZipFiles } from '../services/delete-arquivos-zip.ts';
  */
 export async function deleteZipFilesJob(){
 
-    cron.schedule(' * * * * *', async () => {
+    cron.schedule(' 0 0 * * *', async () => {
         try{
            //  const resultClientExecBackup = await db.select().from(clientes).where(eq(clientes.efetuar_backup, 'S' ) );
               const resultClientExecBackup = await db.select().from(clientes).where(eq(clientes.codigo, 1 ) );
