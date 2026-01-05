@@ -7,6 +7,8 @@ Principais arquivos e símbolos
 - Execução do backup (core): [`execBackup`](src/services/exe-backup.ts) — [src/services/exe-backup.ts](src/services/exe-backup.ts)
 - Dump do banco (mysqldump): [`dumpDatabase`](src/services/dump-database.ts) — [src/services/dump-database.ts](src/services/dump-database.ts)
 - Limpeza de arquivos temporários: [`limparArquivosSql`](src/services/delete-arquivos.ts) — [src/services/delete-arquivos.ts](src/services/delete-arquivos.ts)
+- Exclusão de arquivos ZIP antigos: [`deleteZipFiles`](src/services/delete-arquivos-zip.ts) — [src/services/delete-arquivos-zip.ts](src/services/delete-arquivos-zip.ts)
+- Job de exclusão agendada: [`deleteZipFilesJob`](src/jobs/delete-arquivos-zip-job.ts) — [src/jobs/delete-arquivos-zip-job.ts](src/jobs/delete-arquivos-zip-job.ts)
 - Agendamento periódico: [`mainTask`](src/services/auto-exe-backup.ts) — [src/services/auto-exe-backup.ts](src/services/auto-exe-backup.ts)
 - Fila / worker RabbitMQ: consumidor [`consumeBackupMessages`](src/utils/consume-backup-message.ts) — [src/utils/consume-backup-message.ts](src/utils/consume-backup-message.ts) e produtor [`sendBackupMessage`](src/utils/send-backup-message.ts) — [src/utils/send-backup-message.ts](src/utils/send-backup-message.ts)
 - Endpoint de execução manual: rota [`/executar-backup/:codigo`] implementada em [src/routes/executar-backup/executar-backup.ts](src/routes/executar-backup/executar-backup.ts)
@@ -23,6 +25,10 @@ Visão geral de funcionamento
   2. Cria ZIP com os arquivos SQL (ver [`zip.ts`] se presente).
   3. Limpa arquivos temporários com [`limparArquivosSql`](src/services/delete-arquivos.ts).
   4. Atualiza status no banco via Drizzle ORM (tabela `clientes`).
+- Limpeza automática de arquivos antigos:
+  - O job [`deleteZipFilesJob`](src/jobs/delete-arquivos-zip-job.ts) executa diariamente (meia-noite) para excluir arquivos ZIP antigos.
+  - Utiliza [`deleteZipFiles`](src/services/delete-arquivos-zip.ts) que verifica a data de criação dos arquivos e exclui aqueles mais antigos que o intervalo configurado (em relação à data do último backup).
+  - Compara a data de criação do arquivo (`birthtime`) com a data limite calculada (data do último backup menos o intervalo de dias).
 
 Endpoints importantes
 - POST /executar-backup/:codigo — inicia backup manual para cliente (route em [src/routes/executar-backup/executar-backup.ts](src/routes/executar-backup/executar-backup.ts))
@@ -51,6 +57,7 @@ Observações e pontos de atenção
 - Diretório temporário usado: `temp/` e backups finais em `backups/` ou `PATH_BACKUPS` (ver [src/services/exe-backup.ts](src/services/exe-backup.ts)).
 - Mensagens RabbitMQ são persistentes na fila `backup_queue` (produtor em [src/utils/send-backup-message.ts](src/utils/send-backup-message.ts) e consumidor em [src/utils/consume-backup-message.ts](src/utils/consume-backup-message.ts)).
 - Autenticação e hooks JWT: veja [src/hooks/check-request-jwt.ts](src/hooks/check-request-jwt.ts) e [src/hooks/check-user-jwt.ts](src/hooks/check-user-jwt.ts).
+- Exclusão de arquivos antigos: o job [`deleteZipFilesJob`](src/jobs/delete-arquivos-zip-job.ts) executa diariamente às 00:00 (cron: `0 0 * * *`). O intervalo padrão de exclusão é configurável (atualmente 5 dias). O serviço verifica a data de criação dos arquivos (`birthtime`) no diretório de backups do cliente e exclui arquivos mais antigos que a data limite calculada.
 
 Como rodar local (rápido)
 1. Instalar dependências:
