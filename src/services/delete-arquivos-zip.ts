@@ -1,5 +1,6 @@
 import { opendir } from "node:fs/promises";
-import fs from 'node:fs'
+import { stat, rm } from 'node:fs/promises'
+import path from 'node:path'
 
  /**
   * 
@@ -23,25 +24,25 @@ import fs from 'node:fs'
       
 
     for await (const dirent of dir){
-          await fs.stat( dirent.path  ,async ( err , stats )=>{
-            if( err ){
-                console.log(" ERRO: ",err)
-            }else{
-              console.log( dirent )  
-              console.log(`${new Date(stats.atime)} < ${data}`)  
 
-                  if( new Date(stats.atime) <   data    ){
-                         console.log(`${new Date(stats.atime)} < ${data}`)  
-                         console.log(" Excluindo  arquivo: " ,dirent.name ," ", stats.atime)
-                         console.log( dirent )  
+          // if( dirent.isDirectory ){
+          //   continue;
+          // }
+            const filePath = path.join(fullDirectory, dirent.name);
+        
+            const stats = await stat(filePath);
 
-                          const   completePath = `${dirent.path}/${dirent.name}` 
-                          await fs.rm(completePath,{ force:true }, (err)=>{
-                              if (err) console.log("Erro ao tentar excluir arquivo ",err) 
-                          } )
-                  }
+              const fileCreationDate = stats.birthtime;
+
+            try{
+              if( new Date(fileCreationDate) < data ){
+                console.log(" Excluindo  arquivo: " ,dirent.name ," ", stats.atime)
+                    await rm(filePath, { force: true });
               }
-          })
+
+            }catch( e ){
+              console.log("Erro ao processar arquivo: ", dirent.name, " ", e);
+            }
       }
   } catch (err) {
     return { erro:true, msg:"Ocorreu um erro ao tentar excluir arquivo. ",err}
