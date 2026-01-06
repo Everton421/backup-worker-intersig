@@ -11,7 +11,7 @@ import { consumeBackupMessages } from "./utils/consume-backup-message.ts";
 
  await deleteZipFilesJob();
     
-    jobBackup();
+ await jobBackup();
     
   consumeBackupMessages().catch(console.error);
   
