@@ -17,6 +17,7 @@ import { getUsers } from "./routes/get-user/get-user.ts";
 import { getUserById } from "./routes/get-user-id/get-user-id.ts";
 import cors from '@fastify/cors'
 import { pathCliente } from "./routes/patch-cliente/patch-cliente.ts";
+import { sendBackupMessageRoute } from "./routes/send-message-backup/send-message-backup.ts";
 
     let certPathEnv ; 
     if(process.env.PATH_CERT){
@@ -86,5 +87,6 @@ server.register(putUser)
 server.register(getUsers)
 server.register(getUserById)
 server.register(pathCliente)
+server.register(sendBackupMessageRoute)
 
 export {server }

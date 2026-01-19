@@ -13,6 +13,6 @@ import { consumeBackupMessages } from "./utils/consume-backup-message.ts";
     
  await jobBackup();
     
-  consumeBackupMessages().catch(console.error);
+  //consumeBackupMessages().catch(console.error);
   
     server.listen( { port: port, host: '0.0.0.0'  } ,()=>console.log(` Server is running port ${port} `))
