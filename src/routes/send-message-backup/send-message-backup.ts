@@ -7,7 +7,7 @@ import { execBackup } from "../../services/exe-backup.ts";
 import { createClientPoolConnection } from "../../database/mysql-create-pool.ts";
 import { checkRequest } from "../../hooks/check-request-jwt.ts";
 import { checkUser } from "../../hooks/check-user-jwt.ts";
-import { sendBackupMessage } from "../../utils/send-backup-message.ts";
+import { sendBackupMessage } from "../../broker/broker-connection.ts";
 
 
 type resultDatabase = { database_name: string }

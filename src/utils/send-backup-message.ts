@@ -1,4 +1,6 @@
+/*
 import amqp from 'amqplib'
+import { connectRabbitMQ } from '../broker/broker-connection.ts'
  type mysqlConfig = {
         host:string,
         porta:string,
@@ -23,10 +25,11 @@ if( process.env.RABBITMQ_URL){
 const queueName = 'backup_queue';
 
 export async function sendBackupMessage( backupData:Messagebackup ){
+    await connectRabbitMQ()
+
     try{
 
-        const connection  = await amqp.connect( rabbitMqUrl);   
-        const channel = await connection.createChannel()
+        const channel = await  createChannel()
 
         await channel.assertQueue( queueName, { durable: true });
         
@@ -38,11 +41,6 @@ export async function sendBackupMessage( backupData:Messagebackup ){
             )
 
             console.log("Mensagem de backup enviada para a fila "  );
-
-            setTimeout(()=>{ 
-                connection.close();
-            },500 )
-
     }catch( error ){
         console.error("Erro ao enviar mensagem para o RabbitMq: ", error);
     }
@@ -51,3 +49,4 @@ export async function sendBackupMessage( backupData:Messagebackup ){
 
   
 
+*/
