@@ -5,10 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "node --env-file .env --watch --experimental-strip-types src/server.ts",
-    "start": "tsx --env-file .env --experimental-strip-types src/server.ts",
-    "test:worker":"tsx --env-file .env --watch --experimental-strip-types src/workers/worker.ts", 
-    "test:data":" tsx --env-file .env --watch --experimental-strip-types src/__test__/teste.ts"
+    "start": "tsx --env-file .env --experimental-strip-types src/index.ts" 
   },
   "keywords": [],
   "author": "",
