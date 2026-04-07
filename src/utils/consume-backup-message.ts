@@ -24,6 +24,8 @@ export async function consumeBackupMessages() {
             durable: true
         });
 
+        await channel.prefetch(1);
+
         console.log(`[Worker ${process.pid}] Aguardando mensagens de backup na fila '${queueName}'...`); // Adicionado PID
 
         channel.consume(queueName, async (msg) => {
@@ -31,28 +33,34 @@ export async function consumeBackupMessages() {
                 
                  
                 const receivedData = JSON.parse(msg.content.toString());
-                console.log(`[Worker ${process.pid}] Mensagem recebida:`, receivedData); // Adicionado PID
 
                 const { codigo, config, databases, pathZip, databaseName } = receivedData;
-                     if(!codigo){
+                console.log(`[Worker ${process.pid}] Mensagem recebida, executando dump [${databaseName}]` ); // Adicionado PID
+
+                if(!codigo){
                            console.error(`[Worker ${process.pid}] Nao informado o codigo do cliente!` );
-                            channel.reject(msg, false); // false = não requeue imediatamente, pode ser configurado para DLX
+                            channel.reject(msg, false);
+                            return;
                       }
                      if(!config){
                            console.error(`[Worker ${process.pid}] Nao informado a configuracao de acesso ao banco de dados do cliente!` );
-                            channel.reject(msg, false); // false = não requeue imediatamente, pode ser configurado para DLX
+                            channel.reject(msg, false);
+                            return;
                      }
                       if(!databases){
                            console.error(`[Worker ${process.pid}] Nao informado o array com os nomes dos bancos de dados do cliente!` );
-                            channel.reject(msg, false); // false = não requeue imediatamente, pode ser configurado para DLX
+                            channel.reject(msg, false);
+                            return;
                      }
                     if(!pathZip){
                            console.error(`[Worker ${process.pid}] no informado o caminho onde será salvo o arquivo de backup!` );
-                            channel.reject(msg, false); // false = não requeue imediatamente, pode ser configurado para DLX
+                            channel.reject(msg, false);
+                            return;
                      }
                      if(!databaseName){
                            console.error(`[Worker ${process.pid}] no informado o nome do banco de dados do cliente!` );
-                            channel.reject(msg, false); // false = não requeue imediatamente, pode ser configurado para DLX
+                            channel.reject(msg, false);
+                            return;
                      }
                      
                 try {
@@ -66,7 +74,7 @@ export async function consumeBackupMessages() {
 
             }
         }, {
-            noAck: true
+            noAck: false
         });
 
         // Lidar com desconexões do RabbitMQ
