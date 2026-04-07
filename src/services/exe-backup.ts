@@ -98,17 +98,7 @@ export async function execBackup(codigoCliente: number, config: mysqlConfig, dat
                 return { erro: true, msg: resultStatus.msg }
             }
 
-        } else {
-            await db.update(clientes)
-                .set(
-                    {  status_backup: 'erro',
-                        msg_backup: "nenhum banco de dados disponivel para backup, verifique o nome do banco de dados do cliente"
-                    })
-                .where(eq(clientes.codigo, codigoCliente))
-            return { erro: true, msg: 'nenhum banco de dados disponivel para backup!' }
-        }
-
-            await delay(10000);
+               await delay(10000);
             
         const resultZipfiles = await zipFiles(zipPath, databases, id)
 
@@ -131,6 +121,18 @@ export async function execBackup(codigoCliente: number, config: mysqlConfig, dat
                     msg_backup: ` backup executado com sucesso arquivo: Bkp-${databaseName}_${data}_${hora}.zip `
                 })
             .where(eq(clientes.codigo, codigoCliente))
+
+        } else {
+            await db.update(clientes)
+                .set(
+                    {  status_backup: 'erro',
+                        msg_backup: "nenhum banco de dados disponivel para backup, verifique o nome do banco de dados do cliente"
+                    })
+                .where(eq(clientes.codigo, codigoCliente))
+            return { erro: true, msg: 'nenhum banco de dados disponivel para backup!' }
+        }
+
+         
     } catch (e) {
         await db.update(clientes).set({
             status_backup: 'erro',
