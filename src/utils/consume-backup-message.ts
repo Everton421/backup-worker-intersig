@@ -64,9 +64,10 @@ export async function consumeBackupMessages() {
                      }
                      
                 try {
+                    channel.ack(msg);  
+
                     await execBackup(Number(codigo), config, databases, String(databaseName), pathZip);
                     console.log(`[Worker ${process.pid}] Backup concluído para:`, databaseName);
-                    channel.ack(msg); // Confirma que a mensagem foi processada com sucesso
                 } catch (error) {
                     console.error(`[Worker ${process.pid}] Erro ao executar backup para ${databaseName}:`, error);
                     channel.reject(msg, false); // false = não requeue imediatamente, pode ser configurado para DLX
