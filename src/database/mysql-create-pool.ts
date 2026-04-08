@@ -1,4 +1,4 @@
-import mysql2 from 'mysql2/promise'
+import mysql from 'mysql2/promise'
 
     /**
      * 
@@ -10,25 +10,12 @@ import mysql2 from 'mysql2/promise'
      */
   export   async function createClientPoolConnection( host: string, senha:string, usuario:string, porta:string ){
 
-        let pool: mysql2.Pool | undefined;
-                let connection: mysql2.PoolConnection | undefined;
-
-            pool = mysql2.createPool({
-                host: String(host),
-                password: String(senha),
-                port: Number(porta),
-                user:usuario,
-                connectTimeout: 40000,  
-                connectionLimit: 5,
-            })  
-
-            try{
-                connection  = await pool.getConnection();
-                const [ rows] = await connection.execute(' SELECT 1 ')
-                    console.log("Consulta de teste executada", rows );
-                    return connection
-            }catch(e){
-                console.log('erro ao tentar conectar no banco ',e )
-                    return null
-            }
+               const conn = await  mysql.createPool({
+                    connectionLimit : 10,
+                    host: host,
+                    user: String(usuario),
+                    port: Number(porta),
+                    password: String(senha),
+                })
+                return conn
         }

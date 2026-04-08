@@ -2,6 +2,7 @@ import fs from 'fs';
 import { spawn } from 'child_process';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { createClientPoolConnection } from '../database/mysql-create-pool.ts';
 
 type mysqlConfig = {
     host: string;
@@ -29,7 +30,7 @@ function cleanupFile(filePath: string): void {
     }
 }
 
-export function dumpDatabase(mysqlConfig: mysqlConfig, dbName: string, id: string): Promise<resultDumpDatabase> {
+export async function dumpDatabase(mysqlConfig: mysqlConfig, dbName: string, id: string): Promise<resultDumpDatabase> {
     if (!dbName || dbName.trim() === '') {
         return Promise.resolve({ ok: false, msg: 'Nome do banco de dados inválido' });
     }
@@ -54,6 +55,8 @@ export function dumpDatabase(mysqlConfig: mysqlConfig, dbName: string, id: strin
     if (!fs.existsSync(tempDir)) {
         fs.mkdirSync(tempDir, { recursive: true });
     }
+
+  
 
     return new Promise((resolve, reject) => {
         const mysqldump = spawn(pathMysqlDump, [

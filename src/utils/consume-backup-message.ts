@@ -65,6 +65,7 @@ export async function consumeBackupMessages() {
                      
                 try {
                     channel.ack(msg);  
+                    
 
                     await execBackup(Number(codigo), config, databases, String(databaseName), pathZip);
                     console.log(`[Worker ${process.pid}] Backup concluído para:`, databaseName);

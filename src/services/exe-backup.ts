@@ -12,6 +12,7 @@ import { eq, sql } from 'drizzle-orm';
 import { createDirectory } from '../utils/create-directory.ts';
 import { zipFiles } from './zip.ts';
 import { delay } from '../utils/delay.ts';
+import { createClientPoolConnection } from '../database/mysql-create-pool.ts';
 export type mysqlConfig = {
     host: string,
     porta: string,
@@ -65,7 +66,6 @@ export async function execBackup(codigoCliente: number, config: mysqlConfig, dat
     } else {
         createDirectory(pathzipComplete);
         zipPath = path.resolve(pathzipComplete, `Bkp-${databaseName}_${data}_${hora}.zip`)
-
     }
 
     try {
@@ -75,12 +75,33 @@ export async function execBackup(codigoCliente: number, config: mysqlConfig, dat
                 .set({ status_backup: 'em-andamento', msg_backup: `backup do dia ${data} ${hora} em andamento` }).
                 where(eq(clientes.codigo, codigoCliente))
 
+            //// testa a conexao antes de tentar fazer o dump
+                const conn= await createClientPoolConnection(config.host, config.senha,  config.usuario,  config.porta);                    
+                    let statusResultQuery= { sucess:false , message:''};
+                    try{
+                        const  [rows]   = await conn.query(' SELECT 1 ') as any[];
+                        statusResultQuery.sucess= true
+                    }catch(e ){
+                        statusResultQuery.sucess= false
+                        statusResultQuery.message = String(e); 
+                    }
+                  if (!statusResultQuery.sucess) {
+                    await db.update(clientes).set({ status_backup: 'erro', msg_backup: `Erro ao tentar se conectar com o host [ ${statusResultQuery.message} ]  ` })
+                
+                    return { erro: true, msg: ` ${statusResultQuery.message}` }
+                
+                }
+
+
             let resultStatus
             for (const database of databases) {
 
                 resultStatus = await dumpDatabase(config, database, id).then(result => {
                     console.log(result);
-                }).catch(err => {
+                }).catch(async (err) => {
+                       await db.update(clientes)
+                        .set({ status_backup: 'erro', msg_backup: err})
+                        .where(eq(clientes.codigo, codigoCliente))
                     console.error(err);
                     return { erro: true, msg: ` ${err.msg}` }
 

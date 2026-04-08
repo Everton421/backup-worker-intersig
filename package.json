@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "tsx --env-file .env --experimental-strip-types src/index.ts" 
+    "start": "tsx --env-file .env --experimental-strip-types src/index.ts",
+    "teste:conexao": "tsx --env-file .env --experimental-strip-types src/__test__/teste-conexao.ts" 
   },
   "keywords": [],
   "author": "",
