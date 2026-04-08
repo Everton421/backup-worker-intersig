@@ -87,7 +87,7 @@ export async function execBackup(codigoCliente: number, config: mysqlConfig, dat
                     }
                   if (!statusResultQuery.sucess) {
                     await db.update(clientes).set({ status_backup: 'erro', msg_backup: `Erro ao tentar se conectar com o host [ ${statusResultQuery.message} ]  ` })
-                
+                    .where(eq(clientes.codigo, codigoCliente))
                     return { erro: true, msg: ` ${statusResultQuery.message}` }
                 
                 }
@@ -124,7 +124,10 @@ export async function execBackup(codigoCliente: number, config: mysqlConfig, dat
         const resultZipfiles = await zipFiles(zipPath, databases, id)
 
         if (resultZipfiles.erro) {
-            await db.update(clientes).set({ status_backup: 'erro', msg_backup: `erro ao tentar  executar o zip dos arquivos ${resultZipfiles.error || resultZipfiles.msg}` })
+            await db.update(clientes)
+            .set({ status_backup: 'erro', msg_backup: `erro ao tentar  executar o zip dos arquivos ${resultZipfiles.error || resultZipfiles.msg}` })
+            .where(eq(clientes.codigo, codigoCliente))
+
         }
 
         for (const database of databases) {
@@ -156,9 +159,11 @@ export async function execBackup(codigoCliente: number, config: mysqlConfig, dat
          
     } catch (e) {
         await db.update(clientes).set({
-            status_backup: 'erro',
-            msg_backup: `erro ao tentar  executar o zip dos arquivos ${e}`
-        })
+             status_backup: 'erro',
+             msg_backup: `erro ao tentar  executar o zip dos arquivos ${e}`
+          })
+         .where(eq(clientes.codigo, codigoCliente))
+
 
         return { erro: true, msg: ` erro ao tentar executar o backup ${e} ` }
     }
