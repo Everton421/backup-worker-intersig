@@ -160,10 +160,10 @@ export async function execBackup(codigoCliente: number, config: mysqlConfig, dat
     } catch (e) {
         await db.update(clientes).set({
              status_backup: 'erro',
-             msg_backup: `erro ao tentar  executar o zip dos arquivos ${e}`
+             msg_backup:  String(e)  
           })
          .where(eq(clientes.codigo, codigoCliente))
-
+          console.log(e)
 
         return { erro: true, msg: ` erro ao tentar executar o backup ${e} ` }
     }
