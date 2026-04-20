@@ -5,9 +5,7 @@ import { db } from "../database/client.ts";
 
 export async function deleteOldBackups(){
        try{
-               //  const resultClientExecBackup = await db.select().from(clientes).where(eq(clientes.efetuar_backup, 'S' ) );
-                  const resultClientExecBackup = await db.select().from(clientes).where(eq(clientes.codigo, 1 ) );
-               
+                 const resultClientExecBackup = await db.select().from(clientes).where(eq(clientes.efetuar_backup, 'S' ) );
                 
                     for ( const i of resultClientExecBackup){
                
