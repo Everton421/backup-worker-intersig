@@ -1,9 +1,5 @@
 
-import cron from 'node-cron'
-import { db } from '../database/client.ts';
-import { clientes } from '../database/schema.ts';
-import { eq } from 'drizzle-orm';
-import { deleteZipFiles } from '../services/delete-arquivos-zip.ts';
+import cron from 'node-cron';
 import { deleteOldBackups } from '../services/delete-old-backups.ts';
 /**
  * tarefa responsavel por deletar arquivos zip dos backups antigos

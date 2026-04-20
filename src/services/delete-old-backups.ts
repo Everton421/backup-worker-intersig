@@ -18,7 +18,6 @@ export async function deleteOldBackups(){
                                 console.log( ` [ caminhoBkp | data_ultimo_backup |  data_ultimo_backup ] não foi configurado para o cliente ${i.nomeFantasia} ` )
                                 continue;
                             }
-                             
                             await deleteZipFiles(caminhoBkp, data_ultimo_backup, 5  );
                     }
     
