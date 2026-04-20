@@ -100,7 +100,7 @@ export async function execBackup(codigoCliente: number, config: mysqlConfig, dat
                     console.log(result);
                 }).catch(async (err) => {
                        await db.update(clientes)
-                        .set({ status_backup: 'erro', msg_backup: `${err}`})
+                        .set({ status_backup: 'erro', msg_backup:  JSON.stringify(err) })
                         .where(eq(clientes.codigo, codigoCliente))
                     console.error(err);
                     return { erro: true, msg: ` ${err.msg}` }
