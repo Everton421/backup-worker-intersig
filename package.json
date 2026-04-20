@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "tsx --env-file .env --experimental-strip-types src/index.ts",
-    "teste:conexao": "tsx --env-file .env --experimental-strip-types src/__test__/teste-conexao.ts" 
+    "delete:arquivos": "tsx --env-file .env --experimental-strip-types delete-arquivos-backup.ts"    
   },
   "keywords": [],
   "author": "",

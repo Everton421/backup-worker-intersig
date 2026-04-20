@@ -30,7 +30,7 @@ module.exports = {
         "--env-file",
         ".env",
         "--experimental-strip-types",
-        "src/jobs/delete-arquivos-zip-job.ts" // O arquivo do seu worker
+        "src/jobs/job-delete-backups.ts" // O arquivo do seu worker
       ],
       exec_mode: "fork", // Use 'fork' para processos independentes
       watch: false,
